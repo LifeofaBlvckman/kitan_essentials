@@ -107,7 +107,7 @@
     const probe = 34;
     nav.classList.toggle('on-dark', darkSections().some((sec) => { const r = sec.getBoundingClientRect(); return r.top <= probe && r.bottom > probe; }));
   }
-  const darkSections = () => $$('.ticker, .lookbook, .colourways, .wholesale, .footer');
+  const darkSections = () => $$('.ticker, .footer');
   requestAnimationFrame(() => onScroll(window.scrollY));
   if (lenis) lenis.on('scroll', (l) => onScroll(l.scroll));
   else window.addEventListener('scroll', () => onScroll(window.scrollY), { passive: true });
@@ -165,6 +165,34 @@
     }
   }
 
+  /* ========================================================= decoration */
+  // Hand-drawn floral sprig (romantic line art) and twinkling sparkles.
+  function sprigSVG() {
+    const leaves = [[220, -1], [196, 1], [170, -1], [146, 1], [120, -1], [96, 1]].map(([y, side]) =>
+      `<path d="M0,0 C10,-11 28,-11 38,0 C28,11 10,11 0,0Z" transform="translate(${100 + side * 2},${y}) rotate(${side > 0 ? -38 : 218})" class="leaf"/>`).join('');
+    const flower = (x, y, r) => `<g transform="translate(${x},${y})">${[0, 72, 144, 216, 288].map((a) => `<circle cx="${Math.cos(a * Math.PI / 180) * r}" cy="${Math.sin(a * Math.PI / 180) * r}" r="${r * 0.85}" class="petal"/>`).join('')}<circle r="${r * 0.55}" class="heart"/></g>`;
+    return `<svg viewBox="0 0 200 270" aria-hidden="true">
+      <path d="M100,262 C95,210 106,160 99,108 C95,76 104,46 100,16" class="stem"/>
+      <path d="M99,150 C120,128 138,118 156,96" class="stem"/><path d="M101,190 C80,170 62,160 46,140" class="stem"/>
+      ${leaves}${flower(100, 18, 10)}${flower(158, 92, 8)}${flower(44, 136, 7)}
+    </svg>`;
+  }
+  const SPARKLE = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 0C13 8 16 11 24 12 16 13 13 16 12 24 11 16 8 13 0 12 8 11 11 8 12 0Z"/></svg>';
+  function decorate() {
+    $$('[data-sprig]').forEach((el) => { el.innerHTML = sprigSVG(); });
+    const spots = [['.hero, .page-hero', 7], ['.why', 5], ['.featured, .shop', 5], ['.lookbook', 7], ['.wholesale', 6], ['.colourways', 5], ['.reviews', 4], ['.footer', 6]];
+    spots.forEach(([sel, n]) => $$(sel).forEach((sec) => {
+      for (let i = 0; i < n; i++) {
+        const sp = document.createElement('i');
+        sp.className = 'sparkle sparkle--' + ['gold', 'rose', 'white'][i % 3];
+        sp.innerHTML = SPARKLE;
+        const size = 10 + Math.round(Math.random() * 16);
+        sp.style.cssText = `left:${4 + Math.random() * 92}%;top:${4 + Math.random() * 88}%;width:${size}px;height:${size}px;animation-delay:${(Math.random() * 4).toFixed(2)}s`;
+        sec.appendChild(sp);
+      }
+    }));
+  }
+
   /* ================================================================ hero */
   const heroColors = [];
   let heroIndex = 0, heroTimer = null;
@@ -190,6 +218,7 @@
     }
     if (!heroColors.length) heroColors.push({ name: 'Jet Black', hex: '#1b1a1c', cut: 'cuffed' });
     const sw = $('#heroSwatches');
+    if (!sw) { media.innerHTML = J.svg(heroColors[0].hex, heroColors[0].cut, { label: `Kitan piece in ${heroColors[0].name}` }); return; }
     sw.innerHTML = heroColors.map((c, i) => `<button class="hero-swatch" role="radio" aria-checked="${i === 0}" tabindex="${i === 0 ? 0 : -1}" aria-label="${esc(c.name)}" style="background:${c.hex}" data-i="${i}"></button>`).join('');
     media.innerHTML = J.svg(heroColors[0].hex, heroColors[0].cut, { label: `Kitan piece in ${heroColors[0].name}` });
     sw.addEventListener('click', (e) => { const b = e.target.closest('.hero-swatch'); if (b) setHero(+b.dataset.i, true); });
@@ -254,8 +283,8 @@
       const media = withPhoto ? img(p.images[0], '', c.name) : J.svg(col.hex, p.cut, { label: '' });
       return `<a class="cat" href="shop.html?cat=${encodeURIComponent(c.name)}" data-cat="${esc(c.name)}" style="--tint:${withPhoto ? 'var(--ink-3)' : J.mix(J.tint(col.hex, 0.55), '#3a332d', 0.18)}">
         <div class="cat__media">${media}</div>
-        <span class="cat__name">${esc(c.name)}</span>
-        <span class="cat__meta"><span>${c.items.length} style${c.items.length > 1 ? 's' : ''}</span><span class="cat__go">${ARROW}</span></span>
+        <span class="cat__label"><span class="cat__name">${esc(c.name)}</span>
+        <span class="cat__meta"><span>${c.items.length} style${c.items.length > 1 ? 's' : ''}</span><span class="cat__go">${ARROW}</span></span></span>
       </a>`;
     }).join('');
   }
@@ -1085,13 +1114,9 @@
         .from('.blob', { scale: 0.4, opacity: 0, duration: 2.4, stagger: 0.15, ease: 'power3.out' }, 0)
         .from('#heroMedia', $('.hero').classList.contains('has-photos') ? { clipPath: 'inset(100% 0 0 0 round 999px 999px 30px 30px)', duration: 1.6, ease: 'expo.inOut' } : { yPercent: 30, opacity: 0, rotate: -6, duration: 1.6 }, 0.25)
         .from('.hero__ctas > *', { y: 20, opacity: 0, duration: 1, stagger: 0.08 }, 0.7)
-        .from('.hero__trust li', { y: 20, opacity: 0, duration: 1, stagger: 0.08 }, 0.8)
         .from('.float-card', { scale: 0.6, opacity: 0, duration: 1.2, stagger: 0.12, ease: 'back.out(1.6)' }, 0.9)
-        .from('.hero__swatches', { y: 30, opacity: 0, duration: 1 }, 1);
-      $$('[data-count]').forEach((el) => {
-        const o = { v: 0 };
-        tl.to(o, { v: +el.dataset.count, duration: 1.6, ease: 'power3.out', onUpdate: () => { el.textContent = Math.round(o.v); } }, 0.8);
-      });
+        .from('.stamp', { scale: 0, rotate: -120, duration: 1.4, ease: 'back.out(1.6)' }, 1)
+        .from('.sprig', { scale: 0.6, opacity: 0, rotate: -12, transformOrigin: 'bottom center', duration: 1.8, stagger: 0.15 }, 0.3);
     }
     if ($('.page-hero')) {
       const title = $('.page-hero__title');
@@ -1154,6 +1179,7 @@
     }
     state.cart = state.cart.filter((i) => state.products.some((p) => p.id === i.productId));
     applySettings();
+    decorate();
     renderHero();
     renderCategories();
     renderFilters();

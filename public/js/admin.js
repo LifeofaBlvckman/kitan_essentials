@@ -49,12 +49,13 @@
     clock: '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>',
     box: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 8 12 3 3 8v8l9 5 9-5V8Z"/><path d="m3 8 9 5 9-5M12 13v8"/></svg>',
     inbox: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 13h5l1 3h6l1-3h5M5 5h14l2 8v6H3v-6l2-8Z"/></svg>',
+    chev: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg>',
     db: '<svg viewBox="0 0 24 24" aria-hidden="true"><ellipse cx="12" cy="5" rx="8" ry="3"/><path d="M4 5v14c0 1.7 3.6 3 8 3s8-1.3 8-3V5M4 12c0 1.7 3.6 3 8 3s8-1.3 8-3"/></svg>',
   };
   const FLOW = ['pending', 'confirmed', 'paid', 'shipped', 'delivered'];
 
   const cache = { products: null, orders: null, inquiries: null, reviews: null, settings: null };
-  const ui = { orderFilter: 'all', orderQuery: '', productCat: 'All', productQuery: '', msgFilter: 'all', custQuery: '', range: 30 };
+  const ui = { orderFilter: 'todo', orderQuery: '', productCat: 'All', productQuery: '', msgFilter: 'all', custQuery: '', range: 30 };
   const view = $('#view');
 
   /* ============================================================ toasts */
@@ -169,10 +170,10 @@
 
   /* =========================================================== router */
   const ROUTES = {
-    dashboard: { title: 'Dashboard', crumb: 'Overview', render: renderDashboard },
+    dashboard: { title: 'Today', crumb: 'Kitan Essentials', render: renderDashboard },
     orders: { title: 'Orders', crumb: 'Sales', render: renderOrders },
     products: { title: 'Products', crumb: 'Catalogue', render: renderProducts },
-    storefront: { title: 'Storefront', crumb: 'Photos & lookbook', render: renderStorefront },
+    storefront: { title: 'Storefront', crumb: 'Photos & reviews', render: renderStorefront },
     messages: { title: 'Messages', crumb: 'Inbox', render: renderMessages },
     customers: { title: 'Customers', crumb: 'People', render: renderCustomers },
     reviews: { title: 'Reviews', crumb: 'Storefront', render: renderReviews },
@@ -187,7 +188,7 @@
     $('#crumb').textContent = r.crumb;
     document.title = `${r.title} · Kitan Admin`;
     $('#app').classList.remove('nav-open');
-    view.innerHTML = '<div class="kpis">' + '<div class="card sk" style="height:118px"></div>'.repeat(4) + '</div><div class="card sk" style="height:340px"></div>';
+    view.innerHTML = '<div class="tiles">' + '<div class="card sk" style="height:120px"></div>'.repeat(3) + '</div><div class="card sk" style="height:300px"></div>';
     try {
       await r.render();
     } catch (err) {
@@ -250,90 +251,59 @@
 
   async function renderDashboard() {
     const [orders, products, inquiries] = await Promise.all([load('orders'), load('products'), load('inquiries')]);
-    const d = summarize(orders, products, ui.range);
+    const d = summarize(orders, products, 30);
     const hasDemo = orders.some((o) => o.demo) || inquiries.some((i) => i.demo);
-    const unread = inquiries.filter((i) => !i.read).length;
-    const statusMax = Math.max(1, ...API.STATUSES.map((s) => d.statusCounts[s] || 0));
-    const topMax = Math.max(1, ...d.topProducts.map((t) => t.revenue));
-    const ring = (v) => { const C = 2 * Math.PI * 34; return `<svg viewBox="0 0 84 84" aria-hidden="true"><circle class="track" cx="42" cy="42" r="34"/><circle class="val" cx="42" cy="42" r="34" stroke-dasharray="${C}" stroke-dashoffset="${C * (1 - v)}" data-off="${C * (1 - v)}" data-c="${C}"/></svg>`; };
-
+    const toConfirm = orders.filter((o) => o.status === 'pending');
+    const toShip = orders.filter((o) => o.status === 'confirmed' || o.status === 'paid');
+    const unread = inquiries.filter((i) => !i.read);
+    const low = products.filter((p) => p.active && p.stock <= 5);
+    const h = new Date().getHours();
+    const greet = h < 12 ? 'Good morning' : h < 17 ? 'Good afternoon' : 'Good evening';
+    const todo = [
+      ...toConfirm.slice(0, 5).map((o) => `<div class="todo">
+        <span class="todo__dot todo__dot--new" aria-hidden="true"></span>
+        <button class="todo__main" data-order="${o.id}"><strong>${esc(o.customer.name)}</strong><span>${esc(o.number)} · ${naira(o.total)} · ${ago(o.createdAt)}</span></button>
+        <button class="btn btn--sm btn--primary" data-confirm="${o.id}">Confirm</button>
+      </div>`),
+      ...(toShip.length ? [`<a class="todo" href="#/orders"><span class="todo__dot" aria-hidden="true"></span><span class="todo__main"><strong>${toShip.length} order${toShip.length > 1 ? 's' : ''} ready to send out</strong><span>Mark them shipped once they leave</span></span><span class="todo__go">${ICON.chev}</span></a>`] : []),
+      ...(unread.length ? [`<a class="todo" href="#/messages"><span class="todo__dot" aria-hidden="true"></span><span class="todo__main"><strong>${unread.length} new message${unread.length > 1 ? 's' : ''}</strong><span>Wholesale requests & questions</span></span><span class="todo__go">${ICON.chev}</span></a>`] : []),
+      ...low.map((p) => `<a class="todo" href="#/products"><span class="todo__dot todo__dot--warn" aria-hidden="true"></span><span class="todo__main"><strong>${esc(p.name)}</strong><span>${p.stock === 0 ? 'Sold out — restock or hide it' : `Only ${p.stock} left`}</span></span><span class="todo__go">${ICON.chev}</span></a>`),
+    ];
     view.innerHTML = `
-      ${hasDemo ? `<div class="banner">${ICON.alert}<p><strong>You’re looking at sample data.</strong> These demo orders show how the dashboard works. Clear them once real orders start coming in.</p><a class="btn btn--sm" href="#/settings">Clear demo data</a></div>` : ''}
-      <div class="toolbar">
-        <div class="seg" role="group" aria-label="Date range">
-          ${[7, 30, 90].map((n) => `<button data-range="${n}" aria-pressed="${ui.range === n}">${n} days</button>`).join('')}
-        </div>
-        <div class="toolbar__grow"></div>
-        <span class="muted" style="font-size:12px">Compared with the previous ${ui.range} days</span>
-      </div>
-      <section class="kpis" aria-label="Key figures">
-        <div class="card kpi"><div class="kpi__label">${ICON.money}Revenue</div><div class="kpi__value" data-count="${d.revenue}" data-fmt="naira">${naira(d.revenue)}</div>${delta(d.revenue, d.prevRevenue)}<span class="kpi__foot"> vs ${nairaShort(d.prevRevenue)}</span></div>
-        <div class="card kpi"><div class="kpi__label">${ICON.bag}Orders</div><div class="kpi__value" data-count="${d.orders}">${d.orders}</div>${delta(d.orders, d.prevOrders)}<span class="kpi__foot"> vs ${d.prevOrders}</span></div>
-        <div class="card kpi"><div class="kpi__label">${ICON.trend}Avg. order value</div><div class="kpi__value" data-count="${Math.round(d.aov)}" data-fmt="naira">${naira(d.aov)}</div>${delta(d.aov, d.prevAov)}<span class="kpi__foot"> per order</span></div>
-        <div class="card kpi"><div class="kpi__label">${ICON.clock}To fulfil</div><div class="kpi__value" data-count="${d.toFulfil}">${d.toFulfil}</div><span class="kpi__foot">${d.pending} awaiting confirmation</span></div>
+      ${hasDemo ? `<div class="banner">${ICON.alert}<p>You’re looking at <strong>sample orders</strong>. Clear them in Settings once real orders arrive.</p></div>` : ''}
+      <section class="hello">
+        <p>${fmtDate(new Date(), { weekday: 'long', day: 'numeric', month: 'long' })}</p>
+        <h2>${greet}, Kitan<span aria-hidden="true">✦</span></h2>
+      </section>
+      <section class="tiles">
+        <div class="card tile tile--rose"><span class="tile__label">Sales this month</span><strong class="tile__value" data-count="${d.revenue}" data-fmt="naira">${naira(d.revenue)}</strong><span class="tile__foot">${d.orders} order${d.orders === 1 ? '' : 's'}</span></div>
+        <a class="card tile" href="#/orders"><span class="tile__label">To confirm</span><strong class="tile__value" data-count="${toConfirm.length}">${toConfirm.length}</strong><span class="tile__foot">new orders</span></a>
+        <a class="card tile" href="#/messages"><span class="tile__label">Messages</span><strong class="tile__value" data-count="${unread.length}">${unread.length}</strong><span class="tile__foot">unread</span></a>
       </section>
       <section class="dash">
         <div class="card">
-          <div class="card__head">
-            <div><h2 class="card__title">Revenue</h2><p class="card__sub">Daily sales, last ${ui.range} days (cancelled orders excluded)</p></div>
-            <button class="btn btn--sm" id="chartTableBtn" aria-pressed="false">Show table</button>
-          </div>
-          <div class="chart" id="revChart" tabindex="0" role="img" aria-label="Revenue per day over the last ${ui.range} days. Total ${naira(d.revenue)}. Use left and right arrow keys to read each day."></div>
-          <div id="revTable" hidden></div>
+          <div class="card__head"><h2 class="card__title">Needs your attention</h2></div>
+          ${todo.length ? `<div class="todos">${todo.join('')}</div>` : `<div class="empty-state">${ICON.check}<strong>All caught up</strong>Nothing needs you right now.</div>`}
         </div>
         <div class="card">
-          <div class="card__head"><div><h2 class="card__title">Order status</h2><p class="card__sub">${d.inRangeCount} orders in this period</p></div><a class="btn btn--sm" href="#/orders">View all</a></div>
-          <div class="status-list">
-            ${API.STATUSES.map((s) => `<div class="status-row">${statusPill(s)}<div class="bar"><i style="width:${((d.statusCounts[s] || 0) / statusMax) * 100}%;background:var(--s-${s})"></i></div><span class="num">${d.statusCounts[s] || 0}</span></div>`).join('')}
-          </div>
+          <div class="card__head"><div><h2 class="card__title">Sales</h2><p class="card__sub">Last 30 days</p></div></div>
+          <div class="chart" id="revChart" tabindex="0" role="img" aria-label="Sales per day over the last 30 days. Total ${naira(d.revenue)}. Use left and right arrow keys to read each day."></div>
         </div>
-      </section>
-      <section class="dash dash--3">
-        <div class="card">
-          <div class="card__head"><h2 class="card__title">Top products</h2><span class="card__sub">by revenue</span></div>
-          ${d.topProducts.length ? `<div class="top-list">${d.topProducts.map((t) => `<div class="top-item">${thumb(t, 'top-item__img')}<div><strong>${esc(t.name)}</strong><div class="bar"><i style="width:${(t.revenue / topMax) * 100}%"></i></div></div><div class="amt">${nairaShort(t.revenue)}<span>${t.units} pcs</span></div></div>`).join('')}</div>` : `<div class="empty-state">${ICON.box}<strong>No sales yet</strong>Top sellers will show here.</div>`}
-        </div>
-        <div class="card" style="display:flex;flex-direction:column;gap:22px">
-          <h2 class="card__title">Sales mix</h2>
-          <div class="ring">${ring(d.wholesaleShare)}<div><strong>${Math.round(d.wholesaleShare * 100)}%</strong><p>of item sales were at wholesale price</p></div></div>
-          <div class="ring">${ring(d.localShare)}<div><strong>${Math.round(d.localShare * 100)}%</strong><p>doorstep in Lagos &amp; Ibadan (${d.lagosCount} Lagos · ${d.ibadanCount} Ibadan)</p></div></div>
-        </div>
-        <div class="card">
-          <div class="card__head"><h2 class="card__title">Needs attention</h2></div>
-          <div class="alert-list">
-            ${unread ? `<a class="alert-item" href="#/messages"><span>${ICON.inbox.replace('<svg', '<svg width="16" height="16" style="display:inline;vertical-align:-3px;margin-right:6px;fill:none;stroke:var(--gold);stroke-width:1.8"')}${unread} unread message${unread > 1 ? 's' : ''}</span><span class="muted">Open →</span></a>` : ''}
-            ${d.pending ? `<a class="alert-item" href="#/orders"><span>${d.pending} order${d.pending > 1 ? 's' : ''} awaiting confirmation</span><span class="muted">Review →</span></a>` : ''}
-            ${d.lowStock.map((p) => `<a class="alert-item" href="#/products"><span>${esc(p.name)}</span><span class="${p.stock === 0 ? 'stock-out' : 'stock-low'}">${p.stock === 0 ? 'Sold out' : p.stock + ' left'}</span></a>`).join('')}
-            ${!unread && !d.pending && !d.lowStock.length ? `<div class="empty-state" style="padding:24px 0">${ICON.check}<strong>All caught up</strong></div>` : ''}
-          </div>
-        </div>
-      </section>
-      <section class="card">
-        <div class="card__head"><h2 class="card__title">Recent orders</h2><a class="btn btn--sm" href="#/orders">All orders</a></div>
-        ${ordersTable(orders.slice(0, 6))}
       </section>`;
-
-    $$('[data-range]').forEach((b) => b.addEventListener('click', () => { ui.range = +b.dataset.range; renderDashboard().then(() => anim && G.from(view.children, { opacity: 0, y: 8, stagger: 0.03, duration: 0.4, clearProps: 'all' })); }));
     bindOrderRows(view);
+    $$('[data-confirm]').forEach((b) => b.addEventListener('click', () => busy(b, async () => {
+      const o = cache.orders.find((x) => x.id === b.dataset.confirm);
+      Object.assign(o, await API.setOrderStatus(o.id, 'confirmed'));
+      toast(`${o.number} confirmed — message ${o.customer.name.split(' ')[0]} on WhatsApp next`);
+      renderDashboard();
+      refreshBadges();
+    }).catch(() => {})));
     areaChart($('#revChart'), d.series);
-    $('#chartTableBtn').addEventListener('click', (e) => {
-      const on = e.currentTarget.getAttribute('aria-pressed') !== 'true';
-      e.currentTarget.setAttribute('aria-pressed', on);
-      e.currentTarget.textContent = on ? 'Show chart' : 'Show table';
-      $('#revChart').hidden = on;
-      const t = $('#revTable');
-      t.hidden = !on;
-      t.innerHTML = `<div class="table-wrap" style="max-height:280px;overflow:auto"><table class="t"><thead><tr><th>Date</th><th class="num">Orders</th><th class="num">Revenue</th></tr></thead><tbody>${d.series.slice().reverse().map((s) => `<tr><td>${fmtDate(s.date + 'T00:00', { weekday: 'short', day: 'numeric', month: 'short' })}</td><td class="num">${s.orders}</td><td class="num">${naira(s.revenue)}</td></tr>`).join('')}</tbody></table></div>`;
-    });
-
     if (anim) {
       $$('[data-count]').forEach((el) => {
-        const target = +el.dataset.count;
         const o = { v: 0 };
-        G.to(o, { v: target, duration: 1.4, ease: 'power3.out', onUpdate: () => { el.textContent = el.dataset.fmt === 'naira' ? naira(o.v) : Math.round(o.v); } });
+        G.to(o, { v: +el.dataset.count, duration: 1.3, ease: 'power3.out', onUpdate: () => { el.textContent = el.dataset.fmt === 'naira' ? naira(o.v) : Math.round(o.v); } });
       });
-      G.from('.status-row .bar i, .top-item .bar i', { scaleX: 0, duration: 1, stagger: 0.05, ease: 'expo.out', delay: 0.2 });
-      $$('.ring .val').forEach((c) => G.fromTo(c, { strokeDashoffset: +c.dataset.c }, { strokeDashoffset: +c.dataset.off, duration: 1.4, ease: 'expo.out', delay: 0.3 }));
     }
   }
 
@@ -414,46 +384,44 @@
   }
 
   /* ============================================================ orders */
+  const ORDER_TABS = [
+    ['todo', 'To do', (o) => ['pending', 'confirmed', 'paid'].includes(o.status)],
+    ['shipped', 'On the way', (o) => o.status === 'shipped'],
+    ['delivered', 'Delivered', (o) => o.status === 'delivered'],
+    ['cancelled', 'Cancelled', (o) => o.status === 'cancelled'],
+    ['all', 'All', () => true],
+  ];
   function ordersTable(list) {
     if (!list.length) return `<div class="empty-state">${ICON.bag}<strong>No orders here</strong>New orders from the store will appear here.</div>`;
-    return `<div class="table-wrap"><table class="t">
-      <thead><tr><th>Order</th><th class="hide-sm">Date</th><th>Customer</th><th class="hide-sm">Items</th><th class="hide-sm">Delivery</th><th class="num">Total</th><th>Status</th></tr></thead>
-      <tbody>${list.map((o) => `<tr class="is-click" data-order="${o.id}" tabindex="0">
-        <td><span class="order-no">${esc(o.number)}</span>${o.demo ? '<span class="chip-demo">demo</span>' : ''}</td>
-        <td class="hide-sm">${fmtDate(o.createdAt, { day: 'numeric', month: 'short' })}<span class="sub">${fmtTime(o.createdAt)}</span></td>
-        <td><span class="strong">${esc(o.customer.name)}</span><span class="sub">${esc(o.customer.city || '')}${o.customer.state ? ', ' + esc(o.customer.state) : ''}</span></td>
-        <td class="hide-sm">${o.items.reduce((s, i) => s + i.qty, 0)} pcs${o.items.some((i) => i.wholesale) ? ' <span class="type-badge">WS</span>' : ''}</td>
-        <td class="hide-sm">${esc(API.DELIVERY[o.delivery] || 'Nationwide')}</td>
-        <td class="num strong">${naira(o.total)}</td>
-        <td>${statusPill(o.status)}</td>
-      </tr>`).join('')}</tbody></table></div>`;
+    return `<div class="olist">${list.map((o) => `<button class="orow" data-order="${o.id}">
+        <span class="orow__who"><strong>${esc(o.customer.name)}</strong><span>${esc(o.number)} · ${fmtDate(o.createdAt, { day: 'numeric', month: 'short' })} · ${esc(o.customer.city || o.customer.state || '')}${o.demo ? ' · demo' : ''}</span></span>
+        <span class="orow__total">${naira(o.total)}<span>${((n) => n + (n === 1 ? ' pc' : ' pcs'))(o.items.reduce((s, i) => s + i.qty, 0))}</span></span>
+        ${statusPill(o.status)}
+      </button>`).join('')}</div>`;
   }
   function bindOrderRows(root) {
-    $$('[data-order]', root).forEach((tr) => {
-      tr.addEventListener('click', () => openOrder(tr.dataset.order));
-      tr.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openOrder(tr.dataset.order); } });
-    });
+    $$('[data-order]', root).forEach((el) => el.addEventListener('click', () => openOrder(el.dataset.order)));
   }
 
   async function renderOrders() {
     const orders = await load('orders');
     await load('products');
-    const counts = { all: orders.length };
-    API.STATUSES.forEach((s) => { counts[s] = orders.filter((o) => o.status === s).length; });
+    if (!ORDER_TABS.some(([k]) => k === ui.orderFilter)) ui.orderFilter = 'todo';
     view.innerHTML = `
       <div class="toolbar">
-        <div class="seg" role="group" aria-label="Filter by status">
-          ${['all', ...API.STATUSES].map((s) => `<button data-f="${s}" aria-pressed="${ui.orderFilter === s}" style="text-transform:capitalize">${s} <span class="n">${counts[s]}</span></button>`).join('')}
+        <div class="seg seg--scroll" role="group" aria-label="Show orders">
+          ${ORDER_TABS.map(([k, label, fn]) => `<button data-f="${k}" aria-pressed="${ui.orderFilter === k}">${label} <span class="n">${orders.filter(fn).length}</span></button>`).join('')}
         </div>
         <div class="toolbar__grow"></div>
         <label class="search field" style="margin:0"><span class="sr-only">Search orders</span>${ICON.search}<input type="search" id="oq" placeholder="Search name, phone or order no." value="${esc(ui.orderQuery)}" /></label>
-        <button class="btn" id="exportCsv">${ICON.download}Export CSV</button>
       </div>
-      <div class="card" id="ordersCard"></div>`;
+      <div class="card card--flush" id="ordersCard"></div>
+      <div class="foot-links"><a href="#/customers">See customers</a><button type="button" id="exportCsv">${ICON.download}Download orders (CSV)</button></div>`;
     const draw = () => {
       const q = ui.orderQuery.trim().toLowerCase();
       const digits = q.replace(/\D/g, '');
-      const list = orders.filter((o) => (ui.orderFilter === 'all' || o.status === ui.orderFilter) && (!q
+      const tab = ORDER_TABS.find(([k]) => k === ui.orderFilter)[2];
+      const list = orders.filter((o) => tab(o) && (!q
         || o.number.toLowerCase().includes(q) || o.customer.name.toLowerCase().includes(q)
         || (digits.length >= 4 && o.customer.phone.replace(/\D/g, '').includes(digits))));
       $('#ordersCard').innerHTML = ordersTable(list);
@@ -465,7 +433,7 @@
       ui.orderFilter = b.dataset.f;
       $$('[data-f]').forEach((x) => x.setAttribute('aria-pressed', x === b));
       current = draw();
-      if (anim) G.from('#ordersCard tbody tr', { opacity: 0, y: 6, stagger: 0.015, duration: 0.3 });
+      if (anim) G.from('#ordersCard .orow', { opacity: 0, y: 6, stagger: 0.015, duration: 0.3 });
     }));
     let t;
     $('#oq').addEventListener('input', (e) => { clearTimeout(t); t = setTimeout(() => { ui.orderQuery = e.target.value; current = draw(); }, 160); });
@@ -504,6 +472,7 @@
         <div style="display:flex;gap:8px;align-items:center">${statusPill(o.status)}<button class="icon-btn" data-close aria-label="Close">${ICON.close}</button></div>
       </div>
       <div class="d-body">
+        ${o.status !== 'cancelled' && idx < FLOW.length - 1 ? `<button class="btn btn--primary btn--block no-print" data-status="${FLOW[idx + 1]}">${{ confirmed: 'Mark as confirmed', paid: 'Mark as paid', shipped: 'Mark as shipped', delivered: 'Mark as delivered' }[FLOW[idx + 1]]}</button>` : ''}
         <div class="d-section no-print">
           <h3>Progress</h3>
           <div class="stepper">${FLOW.map((st, i) => `<button data-status="${st}" class="${o.status !== 'cancelled' && i < idx ? 'done' : ''} ${st === o.status ? 'current' : ''}"><i>${o.status !== 'cancelled' && i < idx ? '✓' : i + 1}</i>${st}</button>`).join('')}</div>
@@ -645,7 +614,13 @@
     const hero = [...(s.heroImages || [])];
     const look = [...(s.lookbook || [])];
     view.innerHTML = `
-      <div class="banner banner--info">${ICON.alert}<p><strong>Tip:</strong> portrait photos of people wearing Kitan pieces look best — the same shots you post on Instagram. Product photos are added on each product in <a href="#/products" style="text-decoration:underline">Products</a>.</p></div>
+      <div class="seg tabs" role="tablist" aria-label="Storefront">
+        <button role="tab" aria-selected="${ui.sfTab !== 'reviews'}" data-sft="photos">Photos</button>
+        <button role="tab" aria-selected="${ui.sfTab === 'reviews'}" data-sft="reviews">Reviews</button>
+      </div>
+      <div id="sfReviews" ${ui.sfTab === 'reviews' ? '' : 'hidden'}></div>
+      <div id="sfPhotos" ${ui.sfTab === 'reviews' ? 'hidden' : ''}>
+      <p class="hint-line">Portrait photos of people wearing Kitan look best. Product photos go on each product in <a href="#/products">Products</a>.</p>
       <div class="sf-grid">
         <section class="card">
           <div class="card__head"><div><h2 class="card__title">Hero photos</h2><p class="card__sub">The big opening section of the store. They crossfade like a slideshow. Leave empty to show the animated product illustration.</p></div></div>
@@ -657,7 +632,16 @@
           <div id="lookPm"></div>
         </section>
       </div>
-      <div class="save-bar"><span class="muted" id="sfState">All changes saved</span><div class="actions-row"><a class="btn" href="../" target="_blank" rel="noopener">Preview store</a><button class="btn btn--primary" id="sfSave">Save storefront</button></div></div>`;
+      <div class="save-bar"><span class="muted" id="sfState">All changes saved</span><div class="actions-row"><a class="btn" href="../" target="_blank" rel="noopener">Preview store</a><button class="btn btn--primary" id="sfSave">Save photos</button></div></div>
+      </div>`;
+    $$('[data-sft]').forEach((b) => b.addEventListener('click', () => {
+      ui.sfTab = b.dataset.sft;
+      $$('[data-sft]').forEach((x) => x.setAttribute('aria-selected', x === b));
+      $('#sfPhotos').hidden = ui.sfTab === 'reviews';
+      $('#sfReviews').hidden = ui.sfTab !== 'reviews';
+      if (ui.sfTab === 'reviews' && !$('#sfReviews').childElementCount) renderReviews($('#sfReviews'));
+    }));
+    if (ui.sfTab === 'reviews') renderReviews($('#sfReviews'));
     const dirty = () => { $('#sfState').textContent = 'Unsaved changes'; };
     let ready = false;
     photoManager($('#heroPm'), hero, { max: 6, folder: 'store', cover: false, hint: 'Portrait (tall) photos work best', onChange: () => ready && dirty() });
@@ -739,35 +723,44 @@
     openModal(`
       <form id="pForm" novalidate>
         <div class="d-head"><div><h2 id="modalTitle">${existing ? 'Edit product' : 'New product'}</h2><p>${existing ? 'Changes go live on the store as soon as you save.' : 'Add a new style to your collection.'}</p></div><button type="button" class="icon-btn" data-close aria-label="Close">${ICON.close}</button></div>
-        <div class="m-body editor">
-          <div>
+        <div class="m-body pform">
+          <section class="pform__sec">
+            <h3>Photos</h3>
+            <div id="pPhotos"></div>
+            <p class="hint">The first photo is the cover. No photos yet? The store shows a matching drawing.</p>
+          </section>
+          <section class="pform__sec">
+            <h3>Name &amp; price</h3>
             <div class="field"><label for="fName">Product name</label><input id="fName" name="name" value="${esc(p.name)}" placeholder="e.g. The Signature Jogger" data-autofocus required /><small class="field__err"></small></div>
             <div class="grid-2">
-              <div class="field"><label for="fCat">Category</label><input id="fCat" name="category" list="catList" value="${esc(p.category)}" /><datalist id="catList">${cats.map((c) => `<option value="${esc(c)}">`).join('')}</datalist></div>
-              <div class="field"><label for="fCut">Style (for the illustration)</label><select id="fCut" name="cut">${J.STYLES.map(([v, l]) => `<option value="${v}" ${p.cut === v ? 'selected' : ''}>${l}</option>`).join('')}</select></div>
-            </div>
-            <div class="field"><label for="fDesc">Description</label><textarea id="fDesc" name="description" rows="3">${esc(p.description)}</textarea></div>
-            <div class="grid-3">
-              <div class="field"><label for="fPrice">Retail price (₦)</label><input id="fPrice" name="price" type="number" min="0" step="50" inputmode="numeric" value="${p.price}" /></div>
+              <div class="field"><label for="fPrice">Price (₦)</label><input id="fPrice" name="price" type="number" min="0" step="50" inputmode="numeric" value="${p.price}" /></div>
               <div class="field"><label for="fWs">Wholesale price (₦)</label><input id="fWs" name="wholesalePrice" type="number" min="0" step="50" inputmode="numeric" value="${p.wholesalePrice}" /></div>
-              <div class="field"><label for="fWsMin">Wholesale from (pcs)</label><input id="fWsMin" name="wholesaleMin" type="number" min="1" inputmode="numeric" value="${p.wholesaleMin}" /></div>
             </div>
-            <div class="grid-3">
-              <div class="field"><label for="fStock">Stock (pcs)</label><input id="fStock" name="stock" type="number" min="0" inputmode="numeric" value="${p.stock}" /></div>
-              <label class="check" style="margin-top:22px"><span class="switch"><input type="checkbox" name="featured" ${p.featured ? 'checked' : ''} /><span></span></span>Featured / bestseller</label>
-              <label class="check" style="margin-top:22px"><span class="switch"><input type="checkbox" name="active" ${p.active ? 'checked' : ''} /><span></span></span>Visible on store</label>
+            <div class="grid-2">
+              <div class="field"><label for="fStock">How many in stock</label><input id="fStock" name="stock" type="number" min="0" inputmode="numeric" value="${p.stock}" /></div>
+              <label class="check" style="margin-top:22px"><span class="switch"><input type="checkbox" name="active" ${p.active ? 'checked' : ''} /><span></span></span>Show on store</label>
             </div>
-            <div class="field"><span class="label">Colours</span><div class="colors-edit" id="colorsEdit"></div><button type="button" class="btn btn--sm" id="addColor" style="align-self:flex-start;margin-top:6px">${ICON.plus}Add colour</button></div>
-            <div class="field"><span class="label">Sizes</span><div class="sizes-edit" id="sizesEdit"></div></div>
-            <div class="field">
-              <span class="label">Photos <span class="hint">— the first photo is the cover; the second shows on hover. Until you add photos, the store shows a matching illustration.</span></span>
-              <div id="pPhotos"></div>
-            </div>
-          </div>
-          <aside class="editor__preview" aria-label="Live preview">
-            <p class="label" style="margin:0 0 8px">Live preview</p>
-            <div class="preview-card"><div class="preview-card__media" id="pvMedia"></div><div class="preview-card__body"><strong id="pvName"></strong><span class="muted" id="pvPrice"></span></div></div>
-          </aside>
+          </section>
+          <section class="pform__sec">
+            <h3>Colours &amp; sizes</h3>
+            <div class="colors-edit" id="colorsEdit"></div><button type="button" class="btn btn--sm" id="addColor" style="margin:8px 0 14px">${ICON.plus}Add colour</button>
+            <div class="sizes-edit" id="sizesEdit"></div>
+          </section>
+          <section class="pform__sec">
+            <h3>Description</h3>
+            <div class="field"><label for="fDesc" class="sr-only">Description</label><textarea id="fDesc" name="description" rows="3" placeholder="Fabric, fit, how to style it…">${esc(p.description)}</textarea></div>
+            <details class="more">
+              <summary>More options</summary>
+              <div class="grid-2">
+                <div class="field"><label for="fCat">Category</label><input id="fCat" name="category" list="catList" value="${esc(p.category)}" /><datalist id="catList">${cats.map((c) => `<option value="${esc(c)}">`).join('')}</datalist></div>
+                <div class="field"><label for="fWsMin">Wholesale price from (pcs)</label><input id="fWsMin" name="wholesaleMin" type="number" min="1" inputmode="numeric" value="${p.wholesaleMin}" /></div>
+              </div>
+              <div class="grid-2">
+                <div class="field"><label for="fCut">Drawing style (when no photos)</label><select id="fCut" name="cut">${J.STYLES.map(([v, l]) => `<option value="${v}" ${p.cut === v ? 'selected' : ''}>${l}</option>`).join('')}</select></div>
+                <label class="check" style="margin-top:22px"><span class="switch"><input type="checkbox" name="featured" ${p.featured ? 'checked' : ''} /><span></span></span>Show in Bestsellers</label>
+              </div>
+            </details>
+          </section>
         </div>
         <div class="m-foot">
           ${existing ? `<button type="button" class="btn btn--danger" id="delProduct" style="margin-right:auto">${ICON.trash}Delete</button>` : ''}
@@ -780,6 +773,7 @@
     function preview() {
       const c = p.colors[0] || { hex: '#1b1a1c' };
       const m = $('#pvMedia');
+      if (!m) return;
       m.style.setProperty('--tint', J.tint(c.hex));
       m.innerHTML = p.images[0] ? `<img src="${esc(p.images[0])}" alt="" />` : J.svg(c.hex, f.cut.value, { label: '' });
       $('#pvName').textContent = f.name.value || 'Product name';
@@ -947,10 +941,10 @@
   }
 
   /* ========================================================== reviews */
-  async function renderReviews() {
+  async function renderReviews(target = view) {
     const list = await load('reviews');
     let editing = null;
-    view.innerHTML = `
+    target.innerHTML = `
       <div class="reviews-layout">
         <div>
           <p class="muted" style="margin:0 0 14px">Add genuine reviews from your customers (WhatsApp messages, Instagram comments…). The reviews section on the store only appears once you add at least one visible review.</p>
@@ -1012,54 +1006,60 @@
     const s = await load('settings', true);
     const live = API.mode === 'live';
     const field = (name, label, opts = {}) => `<div class="field"><label for="s_${name}">${label}${opts.hint ? ` <span class="hint">${opts.hint}</span>` : ''}</label><input id="s_${name}" name="${name}" type="${opts.type || 'text'}" ${opts.type === 'number' ? 'min="0" step="100" inputmode="numeric"' : ''} value="${esc(s[name])}" placeholder="${esc(opts.ph || '')}" /></div>`;
+    const tab = ui.setTab || 'shop';
     view.innerHTML = `
-      <div class="settings">
-        <nav class="settings__nav" aria-label="Settings sections">
-          <a href="#st-store" data-jump>Store details</a><a href="#st-contact" data-jump>Contact</a><a href="#st-delivery" data-jump>Delivery</a><a href="#st-payment" data-jump>Payments</a><a href="#st-account" data-jump>Account</a><a href="#st-data" data-jump>Database</a>
-        </nav>
-        <div class="settings__body">
-          <form id="settingsForm" novalidate style="display:flex;flex-direction:column;gap:14px">
-            <section class="card" id="st-store"><div class="card__head"><div><h2 class="card__title">Store details</h2><p class="card__sub">Shown across the storefront.</p></div></div>
-              <div class="grid-2">${field('storeName', 'Store name')}${field('handle', 'Brand handle')}</div>
-              ${field('tagline', 'Tagline')}
-              ${field('announcement', 'Announcement bar', { hint: '(leave empty to hide)' })}
-              ${field('location', 'Location')}
-            </section>
-            <section class="card" id="st-contact"><div class="card__head"><div><h2 class="card__title">Contact</h2><p class="card__sub">Customers see these on the store. WhatsApp enables “Send order on WhatsApp” at checkout.</p></div></div>
-              <div class="grid-2">${field('email', 'Email', { type: 'email' })}${field('phone', 'Phone', { type: 'tel', ph: '0803 123 4567' })}</div>
-              <div class="grid-2">${field('whatsapp', 'WhatsApp number', { type: 'tel', ph: '0803 123 4567' })}${field('instagram', 'Instagram handle', { ph: 'kitan_essentials' })}</div>
-            </section>
-            <section class="card" id="st-delivery"><div class="card__head"><div><h2 class="card__title">Delivery fees</h2><p class="card__sub">Added to orders at checkout.</p></div></div>
-              <div class="grid-2">${field('lagosFee', 'Doorstep · Lagos (₦)', { type: 'number' })}${field('ibadanFee', 'Doorstep · Ibadan (₦)', { type: 'number' })}</div>
-              <div class="grid-2">${field('nationwideFee', 'Other states (₦)', { type: 'number' })}${field('freeDeliveryOver', 'Free delivery over (₦)', { type: 'number', hint: '0 = off' })}</div>
-            </section>
-            <section class="card" id="st-payment"><div class="card__head"><div><h2 class="card__title">Bank transfer details</h2><p class="card__sub">Shown to customers right after they place an order.</p></div></div>
-              <div class="grid-3">${field('bankName', 'Bank', { ph: 'e.g. GTBank' })}${field('accountName', 'Account name')}${field('accountNumber', 'Account number', { ph: '0123456789' })}</div>
-            </section>
-            <div class="save-bar"><span class="muted" id="saveState">All changes saved</span><button class="btn btn--primary" type="submit">Save settings</button></div>
+      <div class="seg tabs" role="tablist" aria-label="Settings">
+        <button role="tab" data-st="shop" aria-selected="${tab === 'shop'}">Shop</button>
+        <button role="tab" data-st="delivery" aria-selected="${tab === 'delivery'}">Delivery &amp; payment</button>
+        <button role="tab" data-st="account" aria-selected="${tab === 'account'}">Account</button>
+      </div>
+      <form id="settingsForm" novalidate class="stack-gap">
+        <section class="card" data-pane="shop" ${tab === 'shop' ? '' : 'hidden'}>
+          ${field('storeName', 'Shop name')}
+          ${field('tagline', 'Short description')}
+          ${field('announcement', 'Top banner message', { hint: '(leave empty to hide)' })}
+          <div class="grid-2">${field('whatsapp', 'WhatsApp number', { type: 'tel', ph: '0803 123 4567' })}${field('instagram', 'Instagram', { ph: 'kitan_essentials0' })}</div>
+          <div class="grid-2">${field('phone', 'Phone', { type: 'tel' })}${field('email', 'Email', { type: 'email' })}</div>
+          ${field('location', 'Location')}
+        </section>
+        <section class="card" data-pane="delivery" ${tab === 'delivery' ? '' : 'hidden'}>
+          <h2 class="card__title">Delivery fees</h2>
+          <div class="grid-3">${field('lagosFee', 'Lagos (₦)', { type: 'number' })}${field('ibadanFee', 'Ibadan (₦)', { type: 'number' })}${field('nationwideFee', 'Other states (₦)', { type: 'number' })}</div>
+          ${field('freeDeliveryOver', 'Free delivery for orders over (₦)', { type: 'number', hint: '0 = never' })}
+          <h2 class="card__title" style="margin-top:10px">Bank transfer</h2>
+          <p class="card__sub" style="margin:0 0 12px">Customers see this right after they order.</p>
+          <div class="grid-3">${field('bankName', 'Bank', { ph: 'e.g. GTBank' })}${field('accountName', 'Account name')}${field('accountNumber', 'Account number', { ph: '0123456789' })}</div>
+        </section>
+        <div class="save-bar" data-pane-save ${tab === 'account' ? 'hidden' : ''}><span class="muted" id="saveState">All changes saved</span><button class="btn btn--primary" type="submit">Save</button></div>
+      </form>
+      <div data-pane="account" class="stack-gap" ${tab === 'account' ? '' : 'hidden'}>
+        <section class="card">
+          <h2 class="card__title">Password</h2>
+          <p class="card__sub" style="margin:0 0 12px">Signed in as ${esc(cache.session && cache.session.email)}</p>
+          <form id="pwForm" class="grid-2" novalidate style="align-items:end">
+            <div class="field"><label for="pwNew">New password</label><input id="pwNew" type="password" autocomplete="new-password" minlength="8" /></div>
+            <div class="field"><label for="pwNew2">Type it again</label><input id="pwNew2" type="password" autocomplete="new-password" /></div>
+            <div><button class="btn" type="submit">Change password</button></div>
           </form>
-
-          <section class="card" id="st-account"><div class="card__head"><div><h2 class="card__title">Account</h2><p class="card__sub">Signed in as ${esc(cache.session && cache.session.email)}</p></div></div>
-            <form id="pwForm" class="grid-2" novalidate style="align-items:end">
-              <div class="field"><label for="pwNew">New password</label><input id="pwNew" type="password" autocomplete="new-password" minlength="8" /></div>
-              <div class="field"><label for="pwNew2">Confirm new password</label><input id="pwNew2" type="password" autocomplete="new-password" /></div>
-              <div><button class="btn" type="submit">Change password</button></div>
-            </form>
-          </section>
-
-          <section class="card" id="st-data">
-            <div class="conn conn--${live ? 'live' : 'demo'}">
-              <div class="conn__icon">${ICON.db}</div>
-              <div>
-                <h2 class="card__title">${live ? 'Connected to Supabase' : 'Demo mode — not connected to a database yet'}</h2>
-                ${live ? '<p>Orders, products and messages are stored securely in your Supabase database.</p>' : `<p>Everything you do here is saved only in this browser. To go live:</p>
-                <ol><li>Create a project at supabase.com</li><li>Open <strong>SQL Editor</strong>, paste <code>supabase/schema.sql</code> and run it</li><li>In <strong>Authentication → Users</strong>, add a user for ${esc(s.email)}, then run the last statement of the schema again</li><li>Copy the Project URL and anon key into <code>public/js/config.js</code></li></ol>`}
-              </div>
+        </section>
+        <section class="card">
+          <div class="conn conn--${live ? 'live' : 'demo'}">
+            <div class="conn__icon">${ICON.db}</div>
+            <div>
+              <h2 class="card__title">${live ? 'Your shop is live' : 'Demo mode'}</h2>
+              <p>${live ? 'Orders, products and messages are saved safely online.' : 'Changes are saved in this browser only until the database is connected.'}</p>
             </div>
-            ${!live ? `<div class="actions-row" style="margin-top:16px"><button class="btn" id="clearDemo">${ICON.trash}Clear demo orders &amp; messages</button><button class="btn btn--danger" id="resetDemo">Reset all demo data</button></div>` : ''}
-          </section>
-        </div>
+          </div>
+          ${!live ? `<div class="actions-row" style="margin-top:16px"><button class="btn" id="clearDemo">${ICON.trash}Clear sample orders</button><button class="btn btn--danger" id="resetDemo">Reset demo</button></div>` : ''}
+        </section>
       </div>`;
+    $$('[data-st]').forEach((b) => b.addEventListener('click', () => {
+      ui.setTab = b.dataset.st;
+      $$('[data-st]').forEach((x) => x.setAttribute('aria-selected', x === b));
+      $$('[data-pane]').forEach((p) => { p.hidden = p.dataset.pane !== ui.setTab; });
+      $('[data-pane-save]').hidden = ui.setTab === 'account';
+      if (anim) G.from($$('[data-pane]:not([hidden])'), { y: 10, opacity: 0, duration: 0.4, ease: 'expo.out' });
+    }));
     const f = $('#settingsForm');
     f.addEventListener('input', () => { $('#saveState').textContent = 'Unsaved changes'; });
     f.addEventListener('submit', async (e) => {
@@ -1074,7 +1074,6 @@
         toast('Settings saved');
       }).catch(() => {});
     });
-    $$('[data-jump]').forEach((a) => a.addEventListener('click', (e) => { e.preventDefault(); document.querySelector(a.getAttribute('href')).scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'start' }); }));
     $('#pwForm').addEventListener('submit', async (e) => {
       e.preventDefault();
       const a = $('#pwNew').value, b = $('#pwNew2').value;
@@ -1104,12 +1103,6 @@
   /* ============================================================ shell */
   $('#menuToggle').addEventListener('click', () => $('#app').classList.add('nav-open'));
   $('#sideScrim').addEventListener('click', () => $('#app').classList.remove('nav-open'));
-  $('#themeToggle').addEventListener('click', () => {
-    const next = document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark';
-    document.documentElement.dataset.theme = next;
-    try { localStorage.setItem('kitan_admin_theme', next); } catch { /* ignore */ }
-    if (currentRoute() === 'dashboard') renderDashboard();
-  });
   $('#signOut').addEventListener('click', async () => {
     await API.signOut();
     Object.keys(cache).forEach((k) => { cache[k] = null; });
@@ -1167,8 +1160,9 @@
     $('#login').style.opacity = '';
     $('#app').hidden = false;
     const chip = $('#modeChip');
-    chip.textContent = API.mode === 'live' ? 'Live' : 'Demo mode';
-    chip.className = 'mode-chip ' + (API.mode === 'live' ? 'is-live' : 'is-demo');
+    chip.textContent = 'Demo mode';
+    chip.className = 'mode-chip is-demo';
+    chip.hidden = API.mode === 'live';
     $('#avatar').title = cache.session.email;
     if (anim) {
       G.from('.side', { x: -30, opacity: 0, duration: 0.7, ease: 'expo.out', clearProps: 'all' });
