@@ -126,12 +126,7 @@ select * from (values
    'Bold, classic and affordable sunglasses with dark lenses — the finishing touch to any Kitan fit.',
    6000, 4000, 6, 60, false,
    '[{"name":"Gloss Black","hex":"#1b1a1c"},{"name":"Tortoise Brown","hex":"#6b4f3f"}]'::jsonb,
-   '["One size"]'::jsonb, 9),
-  ('mini-kitan', 'The Mini Kitan', 'Kids', 'cuffed',
-   'The Signature Jogger, scaled down for the little ones. Durable, breathable cotton that survives playground days and laundry days alike.',
-   8500, 6500, 6, 72, false,
-   '[{"name":"Ash Grey","hex":"#a7a7a3"},{"name":"Sky","hex":"#8fb3cf"},{"name":"Midnight Navy","hex":"#1f2a44"}]'::jsonb,
-   '["2–4Y","5–7Y","8–10Y","11–13Y"]'::jsonb, 10)
+   '["One size"]'::jsonb, 9)
 ) as v(slug, name, category, cut, description, price, wholesale_price, wholesale_min, stock, featured, colors, sizes, sort)
 where not exists (select 1 from public.products);
 

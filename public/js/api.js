@@ -217,8 +217,6 @@
         [['Midnight Navy', '#1f2a44'], ['Cloud White', '#efece6'], ['Jet Black', '#1b1a1c']], adult],
       ['The Classic Shades', 'Sunglasses', 'shades', 'Bold, classic and affordable sunglasses with dark lenses — the finishing touch to any Kitan fit.', 6000, 4000, 60, false,
         [['Gloss Black', '#1b1a1c'], ['Tortoise Brown', '#6b4f3f']], ['One size']],
-      ['The Mini Kitan', 'Kids', 'cuffed', 'The Signature Jogger, scaled down for the little ones. Durable, breathable cotton that survives playground days and laundry days alike.', 8500, 6500, 72, false,
-        [['Ash Grey', '#a7a7a3'], ['Sky', '#8fb3cf'], ['Midnight Navy', '#1f2a44']], ['2–4Y', '5–7Y', '8–10Y', '11–13Y']],
     ].map(([name, category, cut, description, price, wholesalePrice, stock, featured, colors, sizes], i) => ({
       id: uid('p_'), slug: slugify(name), name, category, cut, description, price, wholesalePrice, wholesaleMin: 6, stock, featured,
       active: true, colors: colors.map(([n, h]) => ({ name: n, hex: h })), sizes, images: [], sort: i + 1, createdAt: now, updatedAt: now,

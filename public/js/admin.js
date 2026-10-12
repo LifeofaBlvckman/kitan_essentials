@@ -164,7 +164,7 @@
     const p = productById(item.productId);
     const hex = item.colorHex || (p && p.colors[0] && p.colors[0].hex) || '#1b1a1c';
     if (p && p.images && p.images[0]) return `<div class="${cls}" style="--tint:${J.tint(hex)}"><img src="${esc(p.images[0])}" alt="" loading="lazy" /></div>`;
-    return `<div class="${cls}" style="--tint:${J.tint(hex)}">${J.svg(hex, p ? p.cut : 'cuffed', { label: '' })}</div>`;
+    return `<div class="${cls}" style="--tint:${J.tint(hex)}"><div class="ph"><span>K</span></div></div>`;
   }
   const statusPill = (s) => `<span class="status status--${s}">${s}</span>`;
 
@@ -674,7 +674,7 @@
         const c = p.colors[0] || { hex: '#1b1a1c' };
         return `<article class="card pcard" data-id="${p.id}">
           <div class="pcard__media" style="--tint:${J.tint(c.hex)}" data-edit>
-            ${p.images[0] ? `<img src="${esc(p.images[0])}" alt="" loading="lazy" />` : J.svg(c.hex, p.cut, { label: '' })}
+            ${p.images[0] ? `<img src="${esc(p.images[0])}" alt="" loading="lazy" />` : '<div class="ph"><span>K</span><em>Add a photo</em></div>'}
             <div class="pcard__tags">${p.featured ? '<span class="tag tag--gold">Featured</span>' : ''}${!p.active ? '<span class="tag tag--off">Hidden</span>' : ''}${p.stock === 0 ? '<span class="tag tag--warn">Sold out</span>' : p.stock <= 10 ? '<span class="tag tag--warn">Low stock</span>' : ''}</div>
           </div>
           <div class="pcard__body">
@@ -719,7 +719,7 @@
       name: '', category: 'Classic', cut: 'cuffed', description: '', price: 12000, wholesalePrice: 9000, wholesaleMin: 6, stock: 50,
       featured: false, active: true, colors: [{ name: 'Jet Black', hex: '#1b1a1c' }], sizes: ['S', 'M', 'L', 'XL', 'XXL'], images: [],
     };
-    const cats = [...new Set([...(cache.products || []).map((x) => x.category), 'Classic', 'Lounge', 'Utility', 'Pants & Shorts', 'Tops', 'Sunglasses', 'Kids'])];
+    const cats = [...new Set([...(cache.products || []).map((x) => x.category), 'Classic', 'Lounge', 'Utility', 'Pants & Shorts', 'Tops', 'Sunglasses'])];
     openModal(`
       <form id="pForm" novalidate>
         <div class="d-head"><div><h2 id="modalTitle">${existing ? 'Edit product' : 'New product'}</h2><p>${existing ? 'Changes go live on the store as soon as you save.' : 'Add a new style to your collection.'}</p></div><button type="button" class="icon-btn" data-close aria-label="Close">${ICON.close}</button></div>
@@ -727,7 +727,7 @@
           <section class="pform__sec">
             <h3>Photos</h3>
             <div id="pPhotos"></div>
-            <p class="hint">The first photo is the cover. No photos yet? The store shows a matching drawing.</p>
+            <p class="hint">The first photo is the cover. Until you add one, the store shows a “photo coming soon” card.</p>
           </section>
           <section class="pform__sec">
             <h3>Name &amp; price</h3>
@@ -756,8 +756,8 @@
                 <div class="field"><label for="fWsMin">Wholesale price from (pcs)</label><input id="fWsMin" name="wholesaleMin" type="number" min="1" inputmode="numeric" value="${p.wholesaleMin}" /></div>
               </div>
               <div class="grid-2">
-                <div class="field"><label for="fCut">Drawing style (when no photos)</label><select id="fCut" name="cut">${J.STYLES.map(([v, l]) => `<option value="${v}" ${p.cut === v ? 'selected' : ''}>${l}</option>`).join('')}</select></div>
-                <label class="check" style="margin-top:22px"><span class="switch"><input type="checkbox" name="featured" ${p.featured ? 'checked' : ''} /><span></span></span>Show in Bestsellers</label>
+                <input type="hidden" id="fCut" name="cut" value="${esc(p.cut || 'cuffed')}" />
+                <label class="check"><span class="switch"><input type="checkbox" name="featured" ${p.featured ? 'checked' : ''} /><span></span></span>Show in Bestsellers</label>
               </div>
             </details>
           </section>
@@ -775,7 +775,7 @@
       const m = $('#pvMedia');
       if (!m) return;
       m.style.setProperty('--tint', J.tint(c.hex));
-      m.innerHTML = p.images[0] ? `<img src="${esc(p.images[0])}" alt="" />` : J.svg(c.hex, f.cut.value, { label: '' });
+      m.innerHTML = p.images[0] ? `<img src="${esc(p.images[0])}" alt="" />` : '<div class="ph"><span>K</span></div>';
       $('#pvName').textContent = f.name.value || 'Product name';
       $('#pvPrice').textContent = `${naira(f.price.value)} · ws ${naira(f.wholesalePrice.value)}`;
     }

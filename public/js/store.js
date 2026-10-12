@@ -29,8 +29,9 @@
   $('#year').textContent = new Date().getFullYear();
 
   /* ============================================================ helpers */
-  function art(p, color, cls) {
-    return `<div class="${cls || ''}">${J.svg(color.hex, p.cut, { label: `${p.name} in ${color.name}` })}</div>`;
+  // Placeholder until she uploads real photos (no stock drawings)
+  function ph(cls, text = 'Photo coming soon') {
+    return `<div class="ph ${cls || ''}" role="img" aria-label="${esc(text)}"><span class="ph__k" aria-hidden="true">K</span>${text ? `<span class="ph__t">${esc(text)}</span>` : ''}</div>`;
   }
   function waLink(text) {
     let d = String(state.settings.whatsapp || '').replace(/\D/g, '');
@@ -190,8 +191,7 @@
   }
 
   /* ================================================================ hero */
-  const heroColors = [];
-  let heroIndex = 0, heroTimer = null;
+  let heroTimer = null;
   const heroPhotos = () => (state.settings.heroImages || []).filter(Boolean);
   function renderHero() {
     const media = $('#heroMedia');
@@ -203,42 +203,8 @@
         + (photos.length > 1 ? `<div class="hero__dots">${photos.map((_, i) => `<i class="${i === 0 ? 'is-on' : ''}"></i>`).join('')}</div>` : '');
       return;
     }
-    const seen = new Set();
-    const featured = state.products.filter((p) => p.featured);
-    for (const p of (featured.length ? featured : state.products)) {
-      for (const c of p.colors) {
-        if (seen.has(c.hex) || heroColors.length >= 6) continue;
-        seen.add(c.hex);
-        heroColors.push({ ...c, cut: p.cut });
-      }
-    }
-    if (!heroColors.length) heroColors.push({ name: 'Jet Black', hex: '#1b1a1c', cut: 'cuffed' });
-    const sw = $('#heroSwatches');
-    if (!sw) { media.innerHTML = J.svg(heroColors[0].hex, heroColors[0].cut, { label: `Kitan piece in ${heroColors[0].name}` }); return; }
-    sw.innerHTML = heroColors.map((c, i) => `<button class="hero-swatch" role="radio" aria-checked="${i === 0}" tabindex="${i === 0 ? 0 : -1}" aria-label="${esc(c.name)}" style="background:${c.hex}" data-i="${i}"></button>`).join('');
-    media.innerHTML = J.svg(heroColors[0].hex, heroColors[0].cut, { label: `Kitan piece in ${heroColors[0].name}` });
-    sw.addEventListener('click', (e) => { const b = e.target.closest('.hero-swatch'); if (b) setHero(+b.dataset.i, true); });
-    sw.addEventListener('keydown', (e) => {
-      if (!['ArrowRight', 'ArrowLeft'].includes(e.key)) return;
-      e.preventDefault();
-      const n = (heroIndex + (e.key === 'ArrowRight' ? 1 : -1) + heroColors.length) % heroColors.length;
-      setHero(n, true);
-      sw.children[n].focus();
-    });
-  }
-  function setHero(i, user) {
-    if (i === heroIndex) return;
-    heroIndex = i;
-    const c = heroColors[i];
-    $$('.hero-swatch').forEach((b, k) => { b.setAttribute('aria-checked', k === i); b.tabIndex = k === i ? 0 : -1; });
-    const el = $('#heroMedia');
-    const swap = () => { el.innerHTML = J.svg(c.hex, c.cut, { label: `Kitan piece in ${c.name}` }); };
-    if (anim) {
-      G.timeline()
-        .to(el, { opacity: 0, scale: 0.9, rotate: -5, y: 24, duration: 0.35, ease: 'power2.in', onComplete: swap })
-        .to(el, { opacity: 1, scale: 1, rotate: 0, y: 0, duration: 1, ease: 'expo.out' });
-    } else swap();
-    if (user) clearInterval(heroTimer);
+    $('.hero').classList.add('has-photos');
+    media.innerHTML = ph('ph--hero', 'New photos soon');
   }
   function autoplayHero() {
     if (reduce || !$('#heroMedia')) return;
@@ -257,9 +223,7 @@
           G.fromTo(next, { clipPath: 'inset(100% 0 0 0)' }, { clipPath: 'inset(0% 0 0 0)', duration: 1.2, ease: 'expo.inOut', onComplete: () => prev.classList.remove('is-on') });
         } else prev.classList.remove('is-on');
       }, 5000);
-      return;
     }
-    if (heroColors.length > 1) heroTimer = setInterval(() => { if (!document.hidden) setHero((heroIndex + 1) % heroColors.length); }, 3600);
   }
 
   /* ========================================================== categories */
@@ -276,8 +240,8 @@
       const withPhoto = c.items.find((p) => p.images.length);
       const p = withPhoto || c.items[0];
       const col = p.colors[0];
-      const media = withPhoto ? img(p.images[0], '', c.name) : J.svg(col.hex, p.cut, { label: '' });
-      return `<a class="cat" href="shop.html?cat=${encodeURIComponent(c.name)}" data-cat="${esc(c.name)}" style="--tint:${withPhoto ? 'var(--ink-3)' : J.mix(J.tint(col.hex, 0.55), '#3a332d', 0.18)}">
+      const media = withPhoto ? img(p.images[0], '', c.name) : ph('', '');
+      return `<a class="cat${withPhoto ? '' : ' cat--empty'}" href="shop.html?cat=${encodeURIComponent(c.name)}" data-cat="${esc(c.name)}" style="--tint:${withPhoto ? 'var(--ink-3)' : J.mix(J.tint(col.hex, 0.4), '#B05866', 0.35)}">
         <div class="cat__media">${media}</div>
         <span class="cat__label"><span class="cat__name">${esc(c.name)}</span>
         <span class="cat__meta"><span>${c.items.length} style${c.items.length > 1 ? 's' : ''}</span><span class="cat__go">${ARROW}</span></span></span>
@@ -308,7 +272,7 @@
     const low = p.stock > 0 && p.stock <= 10;
     const media = p.images.length
       ? img(p.images[0], 'img-1', `${p.name}`) + (p.images[1] ? img(p.images[1], 'img-2', '') : '')
-      : art(p, c, 'product-card__art');
+      : ph('product-card__art');
     return `<article class="product-card" data-id="${p.id}" data-ci="${ci}">
       <div class="product-card__media" style="--tint:${J.tint(c.hex)}" data-open>
         <div class="product-card__badges">
@@ -376,12 +340,6 @@
       card.dataset.ci = ci;
       $$('.mini-swatch', card).forEach((b) => b.setAttribute('aria-pressed', b === sw));
       $('.product-card__media', card).style.setProperty('--tint', J.tint(p.colors[ci].hex));
-      const a = $('.product-card__art', card);
-      if (a) {
-        const swap = () => { a.innerHTML = J.svg(p.colors[ci].hex, p.cut, { label: `${p.name} in ${p.colors[ci].name}` }); };
-        if (anim) G.to(a, { opacity: 0, y: 10, duration: 0.2, onComplete: () => { swap(); G.to(a, { opacity: 1, y: 0, duration: 0.5, ease: 'expo.out' }); } });
-        else swap();
-      }
       return;
     }
     if (e.target.closest('[data-open]')) openProduct(p, +card.dataset.ci || 0);
@@ -393,15 +351,10 @@
     const first = state.products.find((p) => p.cut === 'cuffed') || state.products[0];
     const cotton = $('[data-art="cotton"]');
     if (!cotton) return;
-    if (first) cotton.innerHTML = first.images[0] ? img(first.images[0], '', first.name) : J.svg(first.colors[0].hex, first.cut, { label: '' });
+    if (first) cotton.innerHTML = first.images[0] ? img(first.images[0], '', first.name) : ph('ph--soft', '');
     const range = $('[data-art="range"]');
-    if (withPhotos.length >= 3) {
-      range.innerHTML = `<div class="art-trio">${withPhotos.slice(0, 3).map((p) => `<div style="aspect-ratio:3/4;border-radius:18px;overflow:hidden">${img(p.images[0], '', p.name)}</div>`).join('')}</div>`;
-    } else {
-      const picks = ['wide', 'tee', 'shades'].map((cut) => state.products.find((p) => p.cut === cut)).filter(Boolean);
-      const trio = (picks.length === 3 ? picks : state.products.slice(0, 3));
-      range.innerHTML = `<div class="art-trio">${trio.map((p) => `<div>${J.svg(p.colors[0].hex === '#1b1a1c' ? '#efece6' : p.colors[0].hex, p.cut, { label: '' })}</div>`).join('')}</div>`;
-    }
+    const trio = [0, 1, 2].map((i) => (withPhotos[i] ? `<div style="aspect-ratio:3/4;border-radius:18px;overflow:hidden">${img(withPhotos[i].images[0], '', withPhotos[i].name)}</div>` : `<div style="aspect-ratio:3/4">${ph('ph--soft', '')}</div>`));
+    range.innerHTML = `<div class="art-trio">${trio.join('')}</div>`;
     buildMap($('[data-art="map"]'), true);
   }
 
@@ -455,7 +408,7 @@
   /* ========================================================= colourways */
   function renderColourways() {
     const seen = new Map();
-    for (const p of state.products) for (const c of p.colors) if (!seen.has(c.name) && p.cut !== 'shades') seen.set(c.name, { ...c, product: p });
+    for (const p of state.products) for (const c of p.colors) if (!seen.has(c.name) && p.category !== 'Sunglasses') seen.set(c.name, { ...c, product: p });
     const track = $('#colourTrack');
     if (!track) return;
     track.innerHTML = [...seen.values()].map((c) => {
@@ -464,7 +417,7 @@
       const glow = light ? J.mix(c.hex, '#ffffff', 0.75) : J.mix(c.hex, '#ffffff', 0.38);
       return `<a class="cw${light ? ' cw--light' : ''}" style="--cw:${bg};--cw-glow:${glow}" href="#shop" data-pid="${c.product.id}" data-color="${esc(c.name)}" aria-label="${esc(c.name)} — ${esc(c.product.name)}">
         <span class="cw__shop"><span class="badge">${esc(c.product.category)}</span></span>
-        <div class="cw__art">${J.svg(c.hex, c.product.cut, { label: '' })}</div>
+        <div class="cw__art">${c.product.images[0] ? `<div class="cw__photo">${img(c.product.images[0], '', c.product.name)}</div>` : `<span class="cw__orb" style="--orb:${c.hex}"></span>`}</div>
         <span class="cw__name">${esc(c.name)}</span>
         <span class="cw__hex">${esc(c.product.name)}</span>
       </a>`;
@@ -654,7 +607,7 @@
     $$('#pmColors .swatch').forEach((b, i) => b.setAttribute('aria-checked', i === pm.ci));
     $('.pm__media').style.setProperty('--tint', J.tint(c.hex));
     const slides = p.images.length ? p.images.map((u, i) => `<div class="pm__slide">${img(u, '', `${p.name} photo ${i + 1}`, i === 0)}</div>`)
-      : [`<div class="pm__slide"><div class="pm__art">${J.svg(c.hex, p.cut, { label: `${p.name} in ${c.name}` })}</div></div>`];
+      : [`<div class="pm__slide">${ph('pm__art')}</div>`];
     $('#pmGallery').innerHTML = slides.join('');
     $('#pmGallery').scrollLeft = 0;
     $('#pmDots').innerHTML = slides.length > 1 ? slides.map((_, i) => `<i class="${i ? '' : 'is-on'}"></i>`).join('') : '';
@@ -714,7 +667,7 @@
     const fly = document.createElement('div');
     fly.className = 'fly';
     fly.style.cssText = `left:${s.left + s.width / 2 - size / 2}px;top:${s.top + s.height / 2 - size * 0.6}px;width:${size}px;height:${size * 1.2}px;--tint:${J.tint(color.hex)}`;
-    fly.innerHTML = p.images.length ? `<img src="${esc(p.images[0])}" alt="" />` : J.svg(color.hex, p.cut, { label: '' });
+    fly.innerHTML = p.images.length ? `<img src="${esc(p.images[0])}" alt="" />` : ph('', '');
     document.body.appendChild(fly);
     const dx = t.left + t.width / 2 - (s.left + s.width / 2), dy = t.top + t.height / 2 - (s.top + s.height / 2) + size * 0.1;
     G.timeline({ onComplete: () => { fly.remove(); bump(); } })
@@ -749,7 +702,7 @@
     renderBag();
     if (!anim) bump();
     const c = p.colors.find((x) => x.name === color) || p.colors[0];
-    setTimeout(() => toast(`<div class="toast__img" style="--tint:${J.tint(c.hex)}">${p.images.length ? `<img src="${esc(p.images[0])}" alt="" />` : J.svg(c.hex, p.cut, { label: '' })}</div>
+    setTimeout(() => toast(`<div class="toast__img" style="--tint:${J.tint(c.hex)}">${p.images.length ? `<img src="${esc(p.images[0])}" alt="" />` : ph('', '')}</div>
       <div><strong>Added to bag</strong><span style="opacity:.7">${esc(p.name)} · ${esc(color)} · ${esc(size)}</span></div>
       <button type="button" data-open-bag>View bag</button>`), anim ? 700 : 0);
   }
@@ -764,7 +717,7 @@
       box.innerHTML = lines.map((l) => {
         const need = l.p.wholesaleMin - l.styleQty;
         return `<div class="bag-item" data-key="${esc(l.key)}">
-          <div class="bag-item__img" style="--tint:${J.tint(l.color.hex)}">${l.p.images.length ? `<img src="${esc(l.p.images[0])}" alt="" />` : J.svg(l.color.hex, l.p.cut, { label: '' })}</div>
+          <div class="bag-item__img" style="--tint:${J.tint(l.color.hex)}">${l.p.images.length ? `<img src="${esc(l.p.images[0])}" alt="" />` : ph('', '')}</div>
           <div>
             <h3>${esc(l.p.name)}</h3>
             <p class="bag-item__var"><i style="background:${l.color.hex}"></i>${esc(l.color.name)} · ${esc(l.size)}</p>

@@ -406,6 +406,7 @@ body[data-page="shop"] .filters { margin-top: 0; }
 .colourways__track { display: flex; gap: 28px; padding-right: var(--gutter); will-change: transform; }
 .cw { flex: 0 0 auto; width: clamp(260px, 30vw, 400px); aspect-ratio: 3 / 4; border-radius: var(--radius-lg); position: relative; overflow: hidden; display: flex; flex-direction: column; justify-content: flex-end; padding: 26px; background: radial-gradient(circle at 50% 38%, var(--cw-glow) 0%, var(--cw) 62%); box-shadow: inset 0 0 0 1px rgba(255,255,255,.06); }
 .cw__art { position: absolute; inset: 8% 16% 22%; }
+.cw:has(.cw__photo) .cw__art { inset: 0; }
 .cw__art .jogger-svg { width: 100%; height: 100%; filter: drop-shadow(0 30px 30px rgba(0,0,0,.35)); }
 .cw__name { position: relative; font-family: var(--font-display); font-size: 40px; font-style: italic; line-height: 1; }
 .cw__hex { position: relative; margin-top: 6px; font-size: 11px; letter-spacing: .2em; text-transform: uppercase; opacity: .7; }
@@ -946,6 +947,41 @@ body {
 .pm__note, .bag-item__ws, .done__num { color: var(--rose-deep); }
 .done__check circle { stroke: var(--gold); }
 .done__check path { stroke: var(--rose-deep); }
+
+
+/* photo placeholders: shown until she uploads real photos */
+.ph { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px; overflow: hidden; color: var(--rose-deep);
+  background: radial-gradient(80% 60% at 20% 15%, rgba(255, 255, 255, .85), transparent 60%), radial-gradient(70% 60% at 85% 90%, rgba(220, 198, 236, .7), transparent 65%), linear-gradient(160deg, #F9E6E4, #F4DCE0 55%, #EFE2F1); }
+.ph::before { content: ""; position: absolute; inset: 10px; border: 1px dashed rgba(201, 161, 90, .55); border-radius: inherit; border-radius: 20px; pointer-events: none; }
+.ph__k { display: grid; place-items: center; width: 34%; max-width: 92px; aspect-ratio: 1; border-radius: 50%; font-family: var(--font-display); font-style: italic; font-size: clamp(22px, 4vw, 44px);
+  background: rgba(255, 255, 255, .55); -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, .9); box-shadow: 0 14px 30px -18px rgba(142, 62, 78, .6), inset 0 0 0 5px rgba(255, 255, 255, .35); }
+.ph__t { font-size: 11px; letter-spacing: .2em; text-transform: uppercase; color: var(--rose-deep); opacity: .8; text-align: center; padding: 0 12px; }
+.product-card__media > .ph.product-card__art { inset: 0; transform: none; }
+.product-card:hover .product-card__media > .ph.product-card__art { transform: scale(1.03); }
+.pm__slide .ph.pm__art { inset: 0; }
+.ph--hero .ph__k { width: 30%; max-width: 120px; font-size: clamp(32px, 5vw, 56px); }
+.ph--hero::before { border-radius: 999px 999px 24px 24px; }
+.ph--soft { position: relative; height: 100%; min-height: inherit; border-radius: 22px; }
+.stack-card__art .ph--soft { width: 100%; min-height: 260px; max-height: 440px; }
+.art-trio .ph--soft { min-height: 0; height: 100%; border-radius: 16px; }
+.art-trio .ph--soft::before { inset: 6px; border-radius: 12px; }
+.bag-item__img .ph, .toast__img .ph, .fly .ph { gap: 0; }
+.bag-item__img .ph::before, .toast__img .ph::before, .fly .ph::before { inset: 4px; border-radius: 10px; }
+.bag-item__img .ph__k, .toast__img .ph__k { width: 60%; font-size: 18px; box-shadow: none; }
+.cat__media .ph::before { inset: 14px; border-radius: 22px; }
+.cat__media .ph { justify-content: flex-start; padding-top: 22%; }
+.cat--empty { color: var(--plum, #3A2230); }
+.cat--empty::after { display: none; }
+.cat--empty .cat__label { background: rgba(255, 255, 255, .55); border-color: rgba(255, 255, 255, .9); }
+.cat--empty .cat__meta { color: var(--rose-deep); }
+.cat--empty .cat__go { background: var(--rose-grad); }
+.cw__orb { position: absolute; left: 50%; top: 50%; width: min(70%, 220px); aspect-ratio: 1; transform: translate(-50%, -50%); border-radius: 50%;
+  background: radial-gradient(circle at 32% 28%, rgba(255, 255, 255, .75), transparent 32%), radial-gradient(circle at 50% 50%, var(--orb), var(--orb)); box-shadow: 0 30px 60px -24px rgba(0, 0, 0, .45), inset 0 -18px 40px rgba(0, 0, 0, .25), inset 0 0 0 1px rgba(255, 255, 255, .35); }
+.cw:not(.cw--light), .cw:has(.cw__photo) { color: #FFF6F2; }
+.cw__art:has(.cw__orb) { inset: 6% 10% 30%; }
+.cw__photo { position: absolute; inset: 0; overflow: hidden; }
+.cw__photo::after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, transparent 50%, rgba(58, 34, 48, .65)); }
+.cw__photo img { width: 100%; height: 100%; object-fit: cover; }
 
 /* ==========================================================================
    Responsive
