@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>Shop — Kitan Essentials</title>
+  <meta name="description" content="Shop cotton joggers, wide-leg pants, shorts, tops and sunglasses. Wholesale price from 6 pieces per style. Doorstep delivery in Lagos &amp; Ibadan." />
+  <meta name="theme-color" content="#0C0A09" />
+  <meta property="og:title" content="Kitan Essentials — Classic &amp; Affordable Clothing" />
+  <meta property="og:description" content="Cotton joggers, pants, tops &amp; sunglasses. Wholesale &amp; retail. Doorstep delivery in Lagos &amp; Ibadan, nationwide shipping." />
+  <meta property="og:type" content="website" />
+  <link rel="icon" href="img/favicon.svg" type="image/svg+xml" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600&family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/store.css" />
+</head>
+<body class="is-loading" data-page="shop">
+
+  <a class="skip-link" href="#main">Skip to content</a>
+  <div class="progress" aria-hidden="true"><i id="progressBar"></i></div>
+  <noscript><style>.loader{display:none}</style></noscript>
+
+  <!-- Preloader — echoes the gold ring of the Instagram logo -->
+  <div class="loader" id="loader" aria-hidden="true">
+    <div class="loader__curtain loader__curtain--top"></div>
+    <div class="loader__curtain loader__curtain--bottom"></div>
+    <div class="loader__inner">
+      <svg class="loader__ring" viewBox="0 0 200 200">
+        <circle class="r1" cx="100" cy="100" r="92" />
+        <circle class="r2" cx="100" cy="100" r="84" />
+        <circle class="r3" cx="100" cy="100" r="78" />
+      </svg>
+      <div class="loader__word"><span>K</span><span>i</span><span>t</span><span>a</span><span>n</span></div>
+      <div class="loader__sub">Essentials</div>
+      <div class="loader__count"><span id="loaderCount">0</span></div>
+    </div>
+  </div>
+
+  <main id="main">
+    <!-- PAGE HERO -->
+    <section class="page-hero">
+      <div class="hero__bg" aria-hidden="true"><i class="blob blob--a"></i><i class="blob blob--b"></i><div class="grain"></div></div>
+      <div class="container page-hero__inner">
+        <p class="eyebrow">The collection</p>
+        <h1 class="page-hero__title">Classic &amp; <em>affordable.</em></h1>
+        <p class="page-hero__meta" id="shopMeta"></p>
+      </div>
+    </section>
+
+    <!-- SHOP -->
+    <section class="shop section" id="shop">
+      <div class="filters" role="tablist" aria-label="Filter by category" id="filters"></div>
+      <div class="container">
+        <div class="products" id="products" aria-live="polite">
+          <div class="product-card skeleton"></div><div class="product-card skeleton"></div><div class="product-card skeleton"></div><div class="product-card skeleton"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- COLOURWAYS -->
+    <section class="colourways" id="colourways" aria-label="Colourways">
+      <div class="colourways__pin">
+        <div class="colourways__intro">
+          <p class="eyebrow eyebrow--light">Colourways</p>
+          <h2 class="h2 h2--light">Every shade<br /><em>of easy.</em></h2>
+          <p class="colourways__hint">Scroll to explore <span aria-hidden="true">→</span></p>
+        </div>
+        <div class="colourways__track" id="colourTrack"></div>
+      </div>
+    </section>
+
+  </main>
+
+  <script src="vendor/lenis.min.js" defer></script>
+  <script src="vendor/gsap.min.js" defer></script>
+  <script src="vendor/ScrollTrigger.min.js" defer></script>
+  <script src="vendor/SplitText.min.js" defer></script>
+  <script src="vendor/supabase.min.js" defer></script>
+  <script src="js/config.js" defer></script>
+  <script src="js/api.js" defer></script>
+  <script src="js/jogger.js" defer></script>
+  <script src="js/layout.js" defer></script>
+  <script src="js/store.js" defer></script>
+</body>
+</html>
