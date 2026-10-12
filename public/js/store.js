@@ -44,20 +44,13 @@
   const isNew = (p) => p.createdAt && Date.now() - new Date(p.createdAt).getTime() < 21 * 864e5;
 
   /* ===================================================== smooth scroll */
-  let lenis = null;
-  if (window.Lenis && !reduce) {
-    lenis = new window.Lenis({ duration: 1.15, easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)) });
-    if (G && ST) { lenis.on('scroll', ST.update); G.ticker.add((t) => lenis.raf(t * 1000)); G.ticker.lagSmoothing(0); }
-    else { const raf = (t) => { lenis.raf(t); requestAnimationFrame(raf); }; requestAnimationFrame(raf); }
-  }
   function scrollLock(on) {
-    if (lenis) on ? lenis.stop() : lenis.start();
     document.documentElement.style.overflow = on ? 'hidden' : '';
     $('#dock').classList.toggle('is-hidden', on);
   }
   function scrollToEl(target) {
-    if (lenis) lenis.scrollTo(target, { offset: target.id === 'top' ? -400 : -60, duration: 1.4 });
-    else target.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth' });
+    const top = target.getBoundingClientRect().top + window.scrollY - 70;
+    window.scrollTo({ top: Math.max(0, top), behavior: reduce ? 'auto' : 'smooth' });
   }
   // "/", "/index.html" → "/" ; "/shop.html", "/shop" → "/shop"
   const pagePath = (u) => u.pathname.replace(/index\.html$/, '').replace(/\.html$/, '').replace(/\/$/, '') || '/';
@@ -65,7 +58,7 @@
     const a = e.target.closest('a[href]');
     if (!a || e.defaultPrevented || e.metaKey || e.ctrlKey || e.shiftKey || a.target || a.hasAttribute('download')) return;
     const href = a.getAttribute('href');
-    if (href === '#top') { e.preventDefault(); closeMenu(); if (lenis) lenis.scrollTo(0, { duration: 1.4 }); else window.scrollTo({ top: 0, behavior: reduce ? 'auto' : 'smooth' }); return; }
+    if (href === '#top') { e.preventDefault(); closeMenu(); window.scrollTo({ top: 0, behavior: reduce ? 'auto' : 'smooth' }); return; }
     let url;
     try { url = new URL(href, location.href); } catch { return; }
     if (url.origin !== location.origin) return;
@@ -106,8 +99,7 @@
     $('#progressBar').style.transform = `scaleX(${max > 0 ? Math.min(1, y / max) : 0})`;
   }
   requestAnimationFrame(() => onScroll(window.scrollY));
-  if (lenis) lenis.on('scroll', (l) => onScroll(l.scroll));
-  else window.addEventListener('scroll', () => onScroll(window.scrollY), { passive: true });
+  window.addEventListener('scroll', () => onScroll(window.scrollY), { passive: true });
 
   const menuBtn = $('#menuBtn'), menu = $('#mobileMenu');
   function openMenu() {
@@ -177,7 +169,7 @@
   const SPARKLE = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 0C13 8 16 11 24 12 16 13 13 16 12 24 11 16 8 13 0 12 8 11 11 8 12 0Z"/></svg>';
   function decorate() {
     $$('[data-sprig]').forEach((el) => { el.innerHTML = sprigSVG(); });
-    const spots = [['.hero, .page-hero', 7], ['.why', 5], ['.featured, .shop', 5], ['.lookbook', 7], ['.wholesale', 6], ['.colourways', 5], ['.reviews', 4], ['.footer', 6]];
+    const spots = [['.hero, .page-hero', 7], ['.why', 5], ['.featured, .shop', 5], ['.lookbook', 7], ['.wholesale', 6], ['.reviews', 4], ['.footer', 6]];
     spots.forEach(([sel, n]) => $$(sel).forEach((sec) => {
       for (let i = 0; i < n; i++) {
         const sp = document.createElement('i');
@@ -309,10 +301,6 @@
     const cards = $$('.product-card', grid);
     G.set(cards, { opacity: 0, y: 60 });
     ST.batch(cards, { start: 'top 92%', once: true, onEnter: (els) => G.to(els, { opacity: 1, y: 0, duration: 1, stagger: 0.08, ease: 'expo.out', clearProps: 'transform,opacity' }) });
-    cards.forEach((card) => {
-      const m = $('.product-card__media', card);
-      G.fromTo(m, { clipPath: 'inset(12% 8% 0% 8% round 28px)' }, { clipPath: 'inset(0% 0% 0% 0% round 28px)', ease: 'none', scrollTrigger: { trigger: card, start: 'top bottom', end: 'top 60%', scrub: true } });
-    });
   }
   function renderProducts(animate) {
     const grid = $('#products');
@@ -404,33 +392,6 @@
   let lbX = null;
   $('#lightbox').addEventListener('touchstart', (e) => { lbX = e.touches[0].clientX; }, { passive: true });
   $('#lightbox').addEventListener('touchend', (e) => { if (lbX == null) return; const dx = e.changedTouches[0].clientX - lbX; if (Math.abs(dx) > 50) showLb(lbIndex + (dx < 0 ? 1 : -1)); lbX = null; });
-
-  /* ========================================================= colourways */
-  function renderColourways() {
-    const seen = new Map();
-    for (const p of state.products) for (const c of p.colors) if (!seen.has(c.name) && p.category !== 'Sunglasses') seen.set(c.name, { ...c, product: p });
-    const track = $('#colourTrack');
-    if (!track) return;
-    track.innerHTML = [...seen.values()].map((c) => {
-      const light = J.luminance(c.hex) > 0.35;
-      const bg = light ? J.mix(c.hex, '#ffffff', 0.25) : J.mix(c.hex, '#000000', 0.25);
-      const glow = light ? J.mix(c.hex, '#ffffff', 0.75) : J.mix(c.hex, '#ffffff', 0.38);
-      return `<a class="cw${light ? ' cw--light' : ''}" style="--cw:${bg};--cw-glow:${glow}" href="#shop" data-pid="${c.product.id}" data-color="${esc(c.name)}" aria-label="${esc(c.name)} — ${esc(c.product.name)}">
-        <span class="cw__shop"><span class="badge">${esc(c.product.category)}</span></span>
-        <div class="cw__art">${c.product.images[0] ? `<div class="cw__photo">${img(c.product.images[0], '', c.product.name)}</div>` : `<span class="cw__orb" style="--orb:${c.hex}"></span>`}</div>
-        <span class="cw__name">${esc(c.name)}</span>
-        <span class="cw__hex">${esc(c.product.name)}</span>
-      </a>`;
-    }).join('');
-    track.addEventListener('click', (e) => {
-      const a = e.target.closest('.cw');
-      if (!a) return;
-      e.preventDefault();
-      e.stopPropagation();
-      const p = state.products.find((x) => x.id === a.dataset.pid);
-      openProduct(p, Math.max(0, p.colors.findIndex((c) => c.name === a.dataset.color)));
-    });
-  }
 
   // Scroll-linked coverflow for horizontal rails on touch screens
   function coverflow(track, items, rotate) {
@@ -1004,13 +965,6 @@
         G.to('.hero__stage', { yPercent: 12, ease: 'none', scrollTrigger: { trigger: '.hero', start: 'top top', end: 'bottom top', scrub: true } });
         G.to('.hero__copy', { yPercent: -10, opacity: 0.3, ease: 'none', scrollTrigger: { trigger: '.hero', start: 'center center', end: 'bottom top', scrub: true } });
       }
-      const tr = $('#colourTrack');
-      if (tr) {
-        // colourways: pin + horizontal scroll
-        const dist = () => Math.max(0, tr.scrollWidth - (window.innerWidth - tr.getBoundingClientRect().left) + 40);
-        const tween = G.to(tr, { x: () => -dist(), ease: 'none', scrollTrigger: { trigger: '.colourways', start: 'top top', end: () => '+=' + dist(), pin: '.colourways__pin', scrub: 0.8, invalidateOnRefresh: true, anticipatePin: 1 } });
-        $$('.cw', tr).forEach((card) => G.from($('.cw__art', card), { rotate: -8, scale: 0.85, ease: 'none', scrollTrigger: { trigger: card, containerAnimation: tween, start: 'left right', end: 'center center', scrub: true } }));
-      }
       $$('.look-col').forEach((col, i) => G.fromTo(col, { yPercent: [6, -4, 8][i] }, { yPercent: [-6, 6, -8][i], ease: 'none', scrollTrigger: { trigger: '#lookbook', start: 'top bottom', end: 'bottom top', scrub: true } }));
       if (has('#steps')) G.fromTo('.steps__line i', { scaleX: 0 }, { scaleX: 1, ease: 'none', scrollTrigger: { trigger: '#steps', start: 'top 80%', end: 'bottom 60%', scrub: true, onUpdate: (s) => lightSteps(s.progress) } });
     });
@@ -1119,12 +1073,10 @@
     renderFeatured();
     renderStackArt();
     renderLookbook();
-    renderColourways();
     buildMap($('#deliveryMap'));
     renderReviews();
     renderBag();
     if (mobileMQ.matches) {
-      coverflow($('#colourTrack'), () => $$('#colourTrack .cw'), true);
       coverflow($('#lookGrid'), () => $$('#lookGrid .look'), false);
     }
   }
