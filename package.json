@@ -1,0 +1,27 @@
+{
+  "name": "kitan-essentials",
+  "version": "1.0.0",
+  "description": "Kitan Essentials \u2014 premium storefront + admin panel for quality cotton joggers (Ibadan, Nigeria). Static site powered by Supabase.",
+  "scripts": {
+    "dev": "node scripts/dev.js",
+    "vendor": "node scripts/vendor.js",
+    "postinstall": "node scripts/vendor.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/LifeofaBlvckman/kitan_essentials.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "UNLICENSED",
+  "bugs": {
+    "url": "https://github.com/LifeofaBlvckman/kitan_essentials/issues"
+  },
+  "homepage": "https://github.com/LifeofaBlvckman/kitan_essentials#readme",
+  "devDependencies": {
+    "@supabase/supabase-js": "^2.117.3",
+    "gsap": "^3.15.0",
+    "lenis": "^1.3.26"
+  },
+  "private": true
+}

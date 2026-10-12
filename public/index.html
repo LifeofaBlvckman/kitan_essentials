@@ -1,0 +1,529 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>Kitan Essentials — Clothing &amp; Sunglasses · Lagos &amp; Ibadan</title>
+  <meta name="description" content="Quality cotton joggers, pants, shorts, tops and sunglasses — classic and affordable, wholesale and retail. Doorstep delivery in Lagos &amp; Ibadan, nationwide shipping across Nigeria." />
+  <meta name="theme-color" content="#0C0A09" />
+  <meta property="og:title" content="Kitan Essentials — Classic &amp; Affordable Clothing" />
+  <meta property="og:description" content="Cotton joggers, pants, tops &amp; sunglasses. Wholesale &amp; retail. Doorstep delivery in Lagos &amp; Ibadan, nationwide shipping." />
+  <meta property="og:type" content="website" />
+  <link rel="icon" href="img/favicon.svg" type="image/svg+xml" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600&family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/store.css" />
+</head>
+<body class="is-loading">
+  <a class="skip-link" href="#main">Skip to content</a>
+  <div class="progress" aria-hidden="true"><i id="progressBar"></i></div>
+
+  <!-- Preloader — echoes the gold ring of the Instagram logo -->
+  <div class="loader" id="loader" aria-hidden="true">
+    <div class="loader__curtain loader__curtain--top"></div>
+    <div class="loader__curtain loader__curtain--bottom"></div>
+    <div class="loader__inner">
+      <svg class="loader__ring" viewBox="0 0 200 200">
+        <circle class="r1" cx="100" cy="100" r="92" />
+        <circle class="r2" cx="100" cy="100" r="84" />
+        <circle class="r3" cx="100" cy="100" r="78" />
+      </svg>
+      <div class="loader__word"><span>K</span><span>i</span><span>t</span><span>a</span><span>n</span></div>
+      <div class="loader__sub">Essentials</div>
+      <div class="loader__count"><span id="loaderCount">0</span></div>
+    </div>
+  </div>
+
+  <div class="cursor" aria-hidden="true"><div class="cursor__ring"><span class="cursor__label"></span></div><div class="cursor__dot"></div></div>
+
+  <div class="announce" id="announce">
+    <div class="announce__track"><p data-setting="announcement">Doorstep delivery in Lagos &amp; Ibadan · Nationwide shipping on every order</p><p aria-hidden="true" data-setting="announcement">Doorstep delivery in Lagos &amp; Ibadan · Nationwide shipping on every order</p></div>
+  </div>
+
+  <header class="nav" id="nav">
+    <div class="nav__inner container">
+      <a href="#top" class="brand" aria-label="Kitan Essentials home">
+        <span class="brand__badge" aria-hidden="true"><svg viewBox="0 0 40 40"><circle cx="20" cy="20" r="18.5"/><circle cx="20" cy="20" r="15" stroke-dasharray="1 2"/></svg><i>K</i></span>
+        <span class="brand__text"><span class="brand__mark">Kitan</span><span class="brand__sub">Essentials</span></span>
+      </a>
+      <nav class="nav__links" aria-label="Primary">
+        <a href="#shop" class="link-u">Shop</a>
+        <a href="#lookbook" class="link-u">Lookbook</a>
+        <a href="#wholesale" class="link-u">Wholesale</a>
+        <a href="#delivery" class="link-u">Delivery</a>
+        <a href="#contact" class="link-u">Contact</a>
+      </nav>
+      <div class="nav__actions">
+        <button class="icon-btn hide-mobile" id="trackBtn" aria-label="Track your order">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 8 12 3 3 8v8l9 5 9-5V8Z"/><path d="m3 8 9 5 9-5M12 13v8"/></svg>
+        </button>
+        <button class="bag-btn hide-mobile" id="bagBtn" aria-label="Open shopping bag">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 7h12l-1 13H7L6 7Z"/><path d="M9 7a3 3 0 0 1 6 0"/></svg>
+          <span>Bag</span>
+          <span class="bag-btn__count" data-bag-count aria-live="polite">0</span>
+        </button>
+        <button class="menu-btn" id="menuBtn" aria-label="Open menu" aria-expanded="false" aria-controls="mobileMenu">
+          <span></span><span></span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <div class="mobile-menu" id="mobileMenu" hidden>
+    <div class="mobile-menu__glow" aria-hidden="true"></div>
+    <nav aria-label="Menu">
+      <a href="#shop"><i>01</i>Shop</a>
+      <a href="#categories"><i>02</i>Categories</a>
+      <a href="#lookbook"><i>03</i>Lookbook</a>
+      <a href="#wholesale"><i>04</i>Wholesale</a>
+      <a href="#delivery"><i>05</i>Delivery</a>
+      <a href="#faq"><i>06</i>FAQ</a>
+      <a href="#contact"><i>07</i>Contact</a>
+    </nav>
+    <div class="mobile-menu__foot">
+      <a class="btn btn--gold btn--block" data-wa href="#" target="_blank" rel="noopener"><span>Chat on WhatsApp</span></a>
+      <p><span data-setting="location">Lagos &amp; Ibadan, Nigeria</span> · <a data-ig href="#" target="_blank" rel="noopener">Instagram</a></p>
+    </div>
+  </div>
+
+  <!-- Mobile app-style dock -->
+  <nav class="dock" id="dock" aria-label="Quick actions">
+    <a href="#top" class="dock__item" data-dock="top"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11 12 4l9 7v9H3z"/><path d="M9 20v-6h6v6"/></svg><span>Home</span></a>
+    <a href="#shop" class="dock__item" data-dock="shop"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg><span>Shop</span></a>
+    <button class="dock__bag" id="dockBag" aria-label="Open shopping bag"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 7h12l-1 13H7L6 7Z"/><path d="M9 7a3 3 0 0 1 6 0"/></svg><b data-bag-count>0</b></button>
+    <button class="dock__item" id="dockTrack"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 8 12 3 3 8v8l9 5 9-5V8Z"/><path d="m3 8 9 5 9-5M12 13v8"/></svg><span>Track</span></button>
+    <a class="dock__item" data-wa href="#" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 21l1.6-4.7A8.5 8.5 0 1 1 8 19.6L3 21Z"/><path d="M9 9.5c0 3 2.5 5.5 5.5 5.5l1-1.5-2-1-1 1a4 4 0 0 1-2-2l1-1-1-2L9 9.5Z"/></svg><span>Chat</span></a>
+  </nav>
+
+  <a class="wa-fab" data-wa href="#" target="_blank" rel="noopener" aria-label="Chat with us on WhatsApp">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 21l1.6-4.7A8.5 8.5 0 1 1 8 19.6L3 21Z"/><path d="M9 9.5c0 3 2.5 5.5 5.5 5.5l1-1.5-2-1-1 1a4 4 0 0 1-2-2l1-1-1-2L9 9.5Z"/></svg>
+    <span>Chat with us</span>
+  </a>
+
+  <main id="main">
+    <!-- HERO -->
+    <section class="hero" id="top">
+      <div class="hero__bg" aria-hidden="true"><div class="hero__glow"></div><div class="grain"></div><div class="hero__word">KITAN</div></div>
+      <div class="container hero__grid">
+        <div class="hero__copy">
+          <p class="eyebrow hero__eyebrow"><span class="dot"></span> Lagos &amp; Ibadan · Shipped nationwide</p>
+          <h1 class="hero__title">
+            <span class="line">Classic,</span>
+            <span class="line"><em>effortless</em></span>
+            <span class="line">&amp; affordable.</span>
+          </h1>
+          <p class="hero__lede">Quality cotton joggers, pants, tops and shades. Buy a single piece or stock your store at wholesale prices — doorstep delivery in Lagos &amp; Ibadan, shipping to every state.</p>
+          <div class="hero__ctas">
+            <a href="#shop" class="btn btn--dark magnetic"><span>Shop the collection</span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+            <a href="#wholesale" class="btn btn--ghost magnetic"><span>Buy wholesale</span></a>
+          </div>
+          <ul class="hero__trust">
+            <li><strong><span data-count="100">100</span>%</strong><span>Cotton joggers</span></li>
+            <li><strong data-count="2">2</strong><span>Cities · Lagos &amp; Ibadan</span></li>
+            <li><strong data-count="37">37</strong><span>States we deliver to</span></li>
+          </ul>
+        </div>
+
+        <div class="hero__stage" id="heroStage">
+          <div class="hero__disc" aria-hidden="true"></div>
+          <svg class="hero__ring" viewBox="0 0 200 200" aria-hidden="true">
+            <defs><path id="ringPath" d="M100,100 m-88,0 a88,88 0 1,1 176,0 a88,88 0 1,1 -176,0"/></defs>
+            <text><textPath href="#ringPath">CLASSIC &amp; AFFORDABLE · KITAN ESSENTIALS · WHOLESALE &amp; RETAIL · </textPath></text>
+          </svg>
+          <div class="hero__media" id="heroMedia"></div>
+          <div class="float-card float-card--a glass">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11 12 4l9 7v9H3z"/><path d="M9 20v-6h6v6"/></svg>
+            <div><strong>Doorstep</strong><span>Lagos &amp; Ibadan</span></div>
+          </div>
+          <div class="float-card float-card--b glass">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 7h11v9H3zM14 10h4l3 3v3h-7z"/><circle cx="7" cy="17" r="2"/><circle cx="17" cy="17" r="2"/></svg>
+            <div><strong>Nationwide</strong><span>delivery</span></div>
+          </div>
+          <div class="hero__swatches glass" role="radiogroup" aria-label="Preview colourway" id="heroSwatches"></div>
+        </div>
+      </div>
+      <a href="#ticker" class="scroll-cue" aria-label="Scroll to explore"><span></span></a>
+    </section>
+
+    <!-- TICKER -->
+    <section class="ticker" id="ticker" aria-label="What we do">
+      <div class="ticker__row ticker__row--a"><div class="ticker__track">
+        <div class="ticker__group"><span>Joggers</span><i>✦</i><span><em>Wide-legs</em></span><i>✦</i><span>Shorts</span><i>✦</i><span><em>Tops</em></span><i>✦</i><span>Sunglasses</span><i>✦</i><span><em>Wholesale</em></span><i>✦</i></div>
+        <div class="ticker__group" aria-hidden="true"><span>Joggers</span><i>✦</i><span><em>Wide-legs</em></span><i>✦</i><span>Shorts</span><i>✦</i><span><em>Tops</em></span><i>✦</i><span>Sunglasses</span><i>✦</i><span><em>Wholesale</em></span><i>✦</i></div>
+      </div></div>
+      <div class="ticker__row ticker__row--b" aria-hidden="true"><div class="ticker__track">
+        <div class="ticker__group"><span>Lagos</span><span>Ibadan</span><span>Nationwide</span><span>Retail</span><span>Lagos</span><span>Ibadan</span></div>
+        <div class="ticker__group"><span>Lagos</span><span>Ibadan</span><span>Nationwide</span><span>Retail</span><span>Lagos</span><span>Ibadan</span></div>
+      </div></div>
+    </section>
+
+    <!-- CATEGORIES -->
+    <section class="cats section" id="categories">
+      <div class="container">
+        <div class="section-head section-head--row">
+          <div>
+            <p class="eyebrow">Shop by category</p>
+            <h2 class="h2 split">Something for <em>every</em> fit.</h2>
+          </div>
+          <a href="#shop" class="link-arrow">View everything <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+        </div>
+      </div>
+      <div class="cats__rail" id="catsRail"></div>
+    </section>
+
+    <!-- SHOP -->
+    <section class="shop section" id="shop">
+      <div class="container">
+        <div class="section-head section-head--row">
+          <div>
+            <p class="eyebrow">The collection</p>
+            <h2 class="h2 split">Classic &amp; affordable.</h2>
+          </div>
+        </div>
+      </div>
+      <div class="filters" role="tablist" aria-label="Filter by category" id="filters"></div>
+      <div class="container">
+        <div class="products" id="products" aria-live="polite">
+          <div class="product-card skeleton"></div><div class="product-card skeleton"></div><div class="product-card skeleton"></div><div class="product-card skeleton"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- WHY (stacking cards) -->
+    <section class="why section" id="why">
+      <div class="container">
+        <div class="section-head">
+          <p class="eyebrow">The Kitan standard</p>
+          <h2 class="h2 split">Made to be <em>lived</em> in.</h2>
+        </div>
+        <div class="stack" id="stack">
+          <article class="stack-card stack-card--cream">
+            <div class="stack-card__text">
+              <span class="stack-card__num">01</span>
+              <h3>Quality you can feel</h3>
+              <p>Our signature joggers are 100% cotton — breathable, soft and built for our weather. No itchy blends, no shortcuts. They feel better with every wash.</p>
+            </div>
+            <div class="stack-card__art" data-art="cotton"></div>
+          </article>
+          <article class="stack-card stack-card--ink">
+            <div class="stack-card__text">
+              <span class="stack-card__num">02</span>
+              <h3>Classic &amp; affordable</h3>
+              <p>Joggers, wide-legs, shorts, tops and shades — timeless pieces at prices that make sense. Buy one, or a full bale for your boutique.</p>
+            </div>
+            <div class="stack-card__art" data-art="range"></div>
+          </article>
+          <article class="stack-card stack-card--gold">
+            <div class="stack-card__text">
+              <span class="stack-card__num">03</span>
+              <h3>Wholesale, made simple</h3>
+              <p>Add 6 or more of a style — mix any colours and sizes — and the wholesale price applies automatically in your bag. No forms, no waiting.</p>
+            </div>
+            <div class="stack-card__art stack-card__big" aria-hidden="true">6<sup>+</sup></div>
+          </article>
+          <article class="stack-card stack-card--white">
+            <div class="stack-card__text">
+              <span class="stack-card__num">04</span>
+              <h3>Lagos, Ibadan &amp; beyond</h3>
+              <p>Doorstep delivery anywhere in Lagos and Ibadan — Lekki to Ikeja, Bodija to Ring Road — and shipping to every state in Nigeria.</p>
+            </div>
+            <div class="stack-card__art" data-art="map"></div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- LOOKBOOK -->
+    <section class="lookbook section" id="lookbook">
+      <div class="container">
+        <div class="section-head section-head--row">
+          <div>
+            <p class="eyebrow eyebrow--light">Lookbook</p>
+            <h2 class="h2 h2--light split" id="lookTitle">The new collection</h2>
+          </div>
+          <a class="btn btn--outline-light magnetic" data-ig href="#" target="_blank" rel="noopener">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1"/></svg>
+            <span data-ig-handle>@kitan_essentials0</span>
+          </a>
+        </div>
+      </div>
+      <div class="lookbook__grid" id="lookGrid"></div>
+      <div class="container lookbook__empty" id="lookEmpty" hidden>
+        <p>New drops, styling ideas and restocks land on our Instagram first.</p>
+      </div>
+    </section>
+
+    <!-- COLOURWAYS -->
+    <section class="colourways" id="colourways" aria-label="Colourways">
+      <div class="colourways__pin">
+        <div class="colourways__intro">
+          <p class="eyebrow eyebrow--light">Colourways</p>
+          <h2 class="h2 h2--light">Every shade<br /><em>of easy.</em></h2>
+          <p class="colourways__hint">Scroll to explore <span aria-hidden="true">→</span></p>
+        </div>
+        <div class="colourways__track" id="colourTrack"></div>
+      </div>
+    </section>
+
+    <!-- WHOLESALE -->
+    <section class="wholesale section" id="wholesale">
+      <div class="wholesale__orb" aria-hidden="true"></div>
+      <div class="container wholesale__grid">
+        <div class="wholesale__copy">
+          <p class="eyebrow eyebrow--light">For retailers &amp; resellers</p>
+          <h2 class="h2 h2--light split">Stock your shelves with Kitan.</h2>
+          <p class="wholesale__lede">Boutiques, campus vendors and online resellers — get joggers, pants, tops and shades at wholesale prices, delivered anywhere in Nigeria from Lagos &amp; Ibadan.</p>
+          <div class="tiers">
+            <div class="tier reveal"><span class="tier__qty">1 – 5 pcs</span><strong>Retail</strong><p>Any style, any colour, any size.</p></div>
+            <div class="tier tier--hot reveal"><span class="tier__qty" id="tierWholesaleQty">6+ pcs per style</span><strong>Wholesale</strong><p>Price drops automatically in your bag.</p></div>
+            <div class="tier reveal"><span class="tier__qty">50+ pcs</span><strong>Bulk &amp; custom</strong><p>Request a quote for bulk or mixed orders.</p></div>
+          </div>
+        </div>
+        <form class="form-card glass-dark reveal" id="wholesaleForm" novalidate>
+          <h3>Request a wholesale quote</h3>
+          <p class="form-card__sub">We’ll reply with pricing and availability.</p>
+          <div class="field"><label for="wName">Your name</label><input id="wName" name="name" autocomplete="name" required /><small class="field__err"></small></div>
+          <div class="field"><label for="wBiz">Business name <span class="opt">(optional)</span></label><input id="wBiz" name="business" autocomplete="organization" /></div>
+          <div class="field-row">
+            <div class="field"><label for="wPhone">Phone / WhatsApp</label><input id="wPhone" name="phone" type="tel" inputmode="tel" autocomplete="tel" placeholder="0803 123 4567" /><small class="field__err"></small></div>
+            <div class="field"><label for="wQty">Quantity (pcs)</label><input id="wQty" name="quantity" type="number" min="1" inputmode="numeric" placeholder="e.g. 24" /></div>
+          </div>
+          <div class="field"><label for="wEmail">Email <span class="opt">(optional)</span></label><input id="wEmail" name="email" type="email" autocomplete="email" /></div>
+          <div class="field"><label for="wMsg">Styles, colours &amp; sizes you need</label><textarea id="wMsg" name="message" rows="3"></textarea><small class="field__err"></small></div>
+          <button class="btn btn--gold btn--block" type="submit"><span>Send request</span></button>
+          <p class="form-status" role="status" aria-live="polite"></p>
+        </form>
+      </div>
+    </section>
+
+    <!-- DELIVERY -->
+    <section class="delivery section" id="delivery">
+      <div class="container">
+        <div class="section-head">
+          <p class="eyebrow">Delivery</p>
+          <h2 class="h2 split">From Lagos &amp; Ibadan, to your door.</h2>
+        </div>
+        <div class="delivery__grid">
+          <div class="map-card reveal">
+            <svg class="map" id="deliveryMap" viewBox="0 0 400 380" role="img" aria-label="Map showing deliveries from Lagos and Ibadan to cities across Nigeria"></svg>
+            <div class="map-card__legend"><span><i class="hub"></i>Doorstep hubs</span><span><i></i>Nationwide</span></div>
+          </div>
+          <div class="delivery__cards">
+            <article class="deliv-card reveal"><div><span class="deliv-card__tag">Lagos</span><h3>Doorstep in Lagos</h3><p>Mainland or island — to your home, office or shop.</p></div><strong data-fee="lagos">—</strong></article>
+            <article class="deliv-card reveal"><div><span class="deliv-card__tag">Ibadan</span><h3>Doorstep in Ibadan</h3><p>Anywhere in Ibadan, right to your door.</p></div><strong data-fee="ibadan">—</strong></article>
+            <article class="deliv-card deliv-card--dark reveal"><div><span class="deliv-card__tag">Nationwide</span><h3>Every other state</h3><p>All 36 states + FCT via trusted logistics partners.</p></div><strong data-fee="nationwide">—</strong></article>
+          </div>
+        </div>
+        <ol class="steps" id="steps">
+          <li class="steps__line" aria-hidden="true"><i></i></li>
+          <li class="step"><span class="step__n">1</span><div><h4>Order</h4><p>Add to bag and check out in under a minute.</p></div></li>
+          <li class="step"><span class="step__n">2</span><div><h4>Confirm</h4><p>We reach out to confirm your order and payment.</p></div></li>
+          <li class="step"><span class="step__n">3</span><div><h4>Dispatch</h4><p>Your order is packed with care and sent out.</p></div></li>
+          <li class="step"><span class="step__n">4</span><div><h4>Doorstep</h4><p>Delivered to you — Lagos, Ibadan or anywhere in Nigeria.</p></div></li>
+        </ol>
+      </div>
+    </section>
+
+    <!-- REVIEWS (shown once real reviews are added in admin) -->
+    <section class="reviews section" id="reviews" hidden>
+      <div class="container">
+        <div class="section-head"><p class="eyebrow">Kind words</p><h2 class="h2 split">Worn &amp; loved.</h2></div>
+      </div>
+      <div class="reviews__rail" id="reviewsRail"></div>
+    </section>
+
+    <!-- FAQ -->
+    <section class="faq section" id="faq">
+      <div class="container faq__grid">
+        <div class="section-head">
+          <p class="eyebrow">Questions</p>
+          <h2 class="h2 split">Good to know.</h2>
+          <p class="muted">Can’t find your answer? <a href="#contact" class="link-u">Send us a message</a>.</p>
+        </div>
+        <div class="accordion" id="faqList">
+          <details class="acc reveal"><summary>What do you sell?<i aria-hidden="true"></i></summary><div class="acc__body"><p>Classic, affordable clothing and sunglasses — our signature 100% cotton joggers, plus wide-leg pants, shorts, tops and shades. Everything is available retail and wholesale.</p></div></details>
+          <details class="acc reveal"><summary>How does wholesale pricing work?<i aria-hidden="true"></i></summary><div class="acc__body"><p>Once you add the minimum wholesale quantity of a style to your bag (mix any colours and sizes), the wholesale price is applied automatically. For bulk or custom orders, send a wholesale request and we’ll quote you directly.</p></div></details>
+          <details class="acc reveal"><summary>Where do you deliver?<i aria-hidden="true"></i></summary><div class="acc__body"><p>Everywhere in Nigeria. We’re in Lagos and Ibadan, so we offer doorstep delivery in both cities, and we ship to all 36 states and the FCT. We’ll confirm your delivery timeline when we confirm your order.</p></div></details>
+          <details class="acc reveal"><summary>How do I pay?<i aria-hidden="true"></i></summary><div class="acc__body"><p>After you place your order you’ll see our payment details, and we’ll also reach out to confirm your order and payment before dispatch.</p></div></details>
+          <details class="acc reveal"><summary>How do I choose my size?<i aria-hidden="true"></i></summary><div class="acc__body"><p>Most styles come in S to XXL (with age sizes for kids). If you’re between sizes or unsure, message us on WhatsApp with your waist and height and we’ll recommend the best fit.</p></div></details>
+          <details class="acc reveal"><summary>Can I track my order?<i aria-hidden="true"></i></summary><div class="acc__body"><p>Yes — tap <strong>Track</strong> and enter your order number and the phone number you used at checkout.</p></div></details>
+        </div>
+      </div>
+    </section>
+
+    <!-- CONTACT -->
+    <section class="contact section" id="contact">
+      <div class="container">
+        <a class="wa-cta reveal" data-wa href="#" target="_blank" rel="noopener">
+          <span class="wa-cta__icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 21l1.6-4.7A8.5 8.5 0 1 1 8 19.6L3 21Z"/><path d="M9 9.5c0 3 2.5 5.5 5.5 5.5l1-1.5-2-1-1 1a4 4 0 0 1-2-2l1-1-1-2L9 9.5Z"/></svg></span>
+          <span class="wa-cta__text"><small>Fastest reply</small><strong>Chat with us on WhatsApp</strong></span>
+          <span class="wa-cta__arrow"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
+        </a>
+        <div class="contact__grid">
+          <div>
+            <p class="eyebrow">Contact</p>
+            <h2 class="h2 split">Let’s get you styled.</h2>
+            <ul class="contact__list">
+              <li><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/></svg><a href="mailto:musaolaitan5@gmail.com" class="link-u" data-setting-href="email">musaolaitan5@gmail.com</a></li>
+              <li><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s-7-6.2-7-11.5a7 7 0 0 1 14 0C19 14.8 12 21 12 21Z"/><circle cx="12" cy="9.5" r="2.5"/></svg><span data-setting="location">Lagos &amp; Ibadan, Nigeria</span></li>
+              <li id="contactPhone" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2"/></svg><a href="#" class="link-u"></a></li>
+              <li id="contactInstagram" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1"/></svg><a href="#" class="link-u" target="_blank" rel="noopener"></a></li>
+            </ul>
+          </div>
+          <form class="form-card reveal" id="contactForm" novalidate>
+            <h3>Send a message</h3>
+            <div class="field-row">
+              <div class="field"><label for="cName">Name</label><input id="cName" name="name" autocomplete="name" /><small class="field__err"></small></div>
+              <div class="field"><label for="cPhone">Phone</label><input id="cPhone" name="phone" type="tel" inputmode="tel" autocomplete="tel" /><small class="field__err"></small></div>
+            </div>
+            <div class="field"><label for="cEmail">Email <span class="opt">(optional)</span></label><input id="cEmail" name="email" type="email" autocomplete="email" /></div>
+            <div class="field"><label for="cMsg">Message</label><textarea id="cMsg" name="message" rows="4"></textarea><small class="field__err"></small></div>
+            <button class="btn btn--dark btn--block" type="submit"><span>Send message</span></button>
+            <p class="form-status" role="status" aria-live="polite"></p>
+          </form>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="container footer__top">
+      <div>
+        <a href="#top" class="brand brand--light"><span class="brand__badge" aria-hidden="true"><svg viewBox="0 0 40 40"><circle cx="20" cy="20" r="18.5"/><circle cx="20" cy="20" r="15" stroke-dasharray="1 2"/></svg><i>K</i></span><span class="brand__text"><span class="brand__mark">Kitan</span><span class="brand__sub">Essentials</span></span></a>
+        <p class="footer__tag" data-setting="tagline">Clothing &amp; sunglasses — classic and affordable. Wholesale &amp; retail.</p>
+      </div>
+      <nav class="footer__nav" aria-label="Footer">
+        <a href="#shop">Shop</a><a href="#lookbook">Lookbook</a><a href="#wholesale">Wholesale</a><a href="#delivery">Delivery</a><a href="#faq">FAQ</a><a href="#contact">Contact</a>
+      </nav>
+    </div>
+    <div class="footer__word" aria-hidden="true"><span>KITAN</span></div>
+    <div class="container footer__bottom">
+      <p>© <span id="year"></span> Kitan Essentials · <span data-setting="location">Lagos &amp; Ibadan, Nigeria</span></p>
+      <a href="#top" class="link-u">Back to top ↑</a>
+    </div>
+  </footer>
+
+  <!-- Product quick view (bottom sheet on mobile) -->
+  <div class="modal" id="productModal" role="dialog" aria-modal="true" aria-labelledby="pmTitle" hidden>
+    <div class="modal__scrim" data-close></div>
+    <div class="modal__panel pm">
+      <div class="pm__grab" aria-hidden="true"><i></i></div>
+      <button class="icon-btn modal__close" data-close aria-label="Close"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg></button>
+      <div class="pm__media">
+        <div class="pm__gallery" id="pmGallery"></div>
+        <div class="pm__dots" id="pmDots"></div>
+        <button class="pm__arrow pm__arrow--prev" data-slide="-1" aria-label="Previous photo"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m15 6-6 6 6 6"/></svg></button>
+        <button class="pm__arrow pm__arrow--next" data-slide="1" aria-label="Next photo"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg></button>
+      </div>
+      <div class="pm__info">
+        <p class="eyebrow" id="pmCat"></p>
+        <h2 class="pm__title" id="pmTitle"></h2>
+        <div class="pm__price"><strong id="pmPrice"></strong><span id="pmWholesale"></span></div>
+        <p class="pm__desc" id="pmDesc"></p>
+        <fieldset class="opt-group"><legend>Colour — <span id="pmColorName"></span></legend><div class="swatches" id="pmColors" role="radiogroup"></div></fieldset>
+        <fieldset class="opt-group"><legend>Size</legend><div class="sizes" id="pmSizes" role="radiogroup"></div></fieldset>
+        <p class="pm__note" id="pmNote"></p>
+        <ul class="pm__perks"><li>Classic &amp; affordable</li><li>Doorstep in Lagos &amp; Ibadan</li><li>Nationwide shipping</li></ul>
+        <div class="pm__buy">
+          <div class="qty" aria-label="Quantity">
+            <button type="button" data-qty="-1" aria-label="Decrease quantity">−</button>
+            <input id="pmQty" type="number" min="1" value="1" inputmode="numeric" aria-label="Quantity" />
+            <button type="button" data-qty="1" aria-label="Increase quantity">+</button>
+          </div>
+          <button class="btn btn--dark btn--grow" id="pmAdd"><span>Add to bag</span></button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Lookbook lightbox -->
+  <div class="lightbox" id="lightbox" role="dialog" aria-modal="true" aria-label="Lookbook photo" hidden>
+    <button class="icon-btn lightbox__close" data-close aria-label="Close"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg></button>
+    <button class="lightbox__nav lightbox__nav--prev" data-lb="-1" aria-label="Previous photo"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m15 6-6 6 6 6"/></svg></button>
+    <figure class="lightbox__fig"><img id="lbImg" alt="" /><figcaption id="lbCount"></figcaption></figure>
+    <button class="lightbox__nav lightbox__nav--next" data-lb="1" aria-label="Next photo"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg></button>
+  </div>
+
+  <!-- Bag drawer -->
+  <div class="drawer" id="bag" role="dialog" aria-modal="true" aria-labelledby="bagTitle" hidden>
+    <div class="drawer__scrim" data-close></div>
+    <aside class="drawer__panel">
+      <header class="drawer__head">
+        <h2 id="bagTitle">Your bag</h2>
+        <button class="icon-btn" data-close aria-label="Close bag"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg></button>
+      </header>
+      <div class="drawer__steps" id="bagSteps">
+        <section class="bag-step is-active" data-step="items">
+          <div class="bag-items" id="bagItems"></div>
+          <footer class="bag-foot">
+            <div class="ws-meter" id="wsMeter" hidden></div>
+            <div class="bag-row"><span>Subtotal</span><strong id="bagSubtotal">₦0</strong></div>
+            <p class="bag-foot__note">Delivery is calculated at checkout.</p>
+            <button class="btn btn--dark btn--block" id="toCheckout"><span>Checkout</span></button>
+          </footer>
+        </section>
+        <section class="bag-step" data-step="checkout">
+          <form id="checkoutForm" class="checkout" novalidate>
+            <button type="button" class="back-link" data-goto="items">← Back to bag</button>
+            <fieldset class="deliv-opts">
+              <legend>Delivery</legend>
+              <label class="deliv-opt"><input type="radio" name="delivery" value="lagos" checked /><span><strong>Lagos</strong><em data-fee="lagos"></em></span></label>
+              <label class="deliv-opt"><input type="radio" name="delivery" value="ibadan" /><span><strong>Ibadan</strong><em data-fee="ibadan"></em></span></label>
+              <label class="deliv-opt"><input type="radio" name="delivery" value="nationwide" /><span><strong>Other states</strong><em data-fee="nationwide"></em></span></label>
+            </fieldset>
+            <div class="field"><label for="coName">Full name</label><input id="coName" name="name" autocomplete="name" /><small class="field__err"></small></div>
+            <div class="field-row">
+              <div class="field"><label for="coPhone">Phone</label><input id="coPhone" name="phone" type="tel" inputmode="tel" autocomplete="tel" placeholder="0803 123 4567" /><small class="field__err"></small></div>
+              <div class="field"><label for="coEmail">Email <span class="opt">(optional)</span></label><input id="coEmail" name="email" type="email" autocomplete="email" /><small class="field__err"></small></div>
+            </div>
+            <div class="field"><label for="coAddress">Delivery address</label><input id="coAddress" name="address" autocomplete="street-address" /><small class="field__err"></small></div>
+            <div class="field-row">
+              <div class="field"><label for="coCity">City / area</label><input id="coCity" name="city" autocomplete="address-level2" /><small class="field__err"></small></div>
+              <div class="field"><label for="coState">State</label><select id="coState" name="state" autocomplete="address-level1"></select><small class="field__err"></small></div>
+            </div>
+            <div class="field"><label for="coNote">Order note <span class="opt">(optional)</span></label><textarea id="coNote" name="note" rows="2" placeholder="Landmark, preferred delivery time…"></textarea></div>
+            <div class="summary">
+              <div class="bag-row"><span>Subtotal</span><span id="coSubtotal"></span></div>
+              <div class="bag-row"><span>Delivery</span><span id="coDelivery"></span></div>
+              <div class="bag-row bag-row--total"><span>Total</span><strong id="coTotal"></strong></div>
+            </div>
+            <button class="btn btn--dark btn--block" type="submit" id="placeOrder"><span>Place order</span></button>
+            <p class="form-status" role="status" aria-live="polite"></p>
+          </form>
+        </section>
+        <section class="bag-step" data-step="done"><div class="done" id="doneBox"></div></section>
+      </div>
+    </aside>
+  </div>
+
+  <!-- Track order -->
+  <div class="modal" id="trackModal" role="dialog" aria-modal="true" aria-labelledby="trackTitle" hidden>
+    <div class="modal__scrim" data-close></div>
+    <div class="modal__panel modal__panel--sm">
+      <div class="pm__grab" aria-hidden="true"><i></i></div>
+      <button class="icon-btn modal__close" data-close aria-label="Close"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg></button>
+      <p class="eyebrow">Order status</p>
+      <h2 class="h3" id="trackTitle">Track your order</h2>
+      <form id="trackForm" novalidate>
+        <div class="field"><label for="tNumber">Order number</label><input id="tNumber" name="number" placeholder="KE-1234" autocapitalize="characters" /></div>
+        <div class="field"><label for="tPhone">Phone used at checkout</label><input id="tPhone" name="phone" type="tel" inputmode="tel" /></div>
+        <button class="btn btn--dark btn--block" type="submit"><span>Check status</span></button>
+      </form>
+      <div class="track-result" id="trackResult" aria-live="polite"></div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <script src="vendor/lenis.min.js" defer></script>
+  <script src="vendor/gsap.min.js" defer></script>
+  <script src="vendor/ScrollTrigger.min.js" defer></script>
+  <script src="vendor/SplitText.min.js" defer></script>
+  <script src="vendor/supabase.min.js" defer></script>
+  <script src="js/config.js" defer></script>
+  <script src="js/api.js" defer></script>
+  <script src="js/jogger.js" defer></script>
+  <script src="js/store.js" defer></script>
+</body>
+</html>
