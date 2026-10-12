@@ -103,11 +103,7 @@
     lastY = y;
     const max = document.documentElement.scrollHeight - window.innerHeight;
     $('#progressBar').style.transform = `scaleX(${max > 0 ? Math.min(1, y / max) : 0})`;
-    // light nav text whenever a dark section sits under it
-    const probe = 34;
-    nav.classList.toggle('on-dark', darkSections().some((sec) => { const r = sec.getBoundingClientRect(); return r.top <= probe && r.bottom > probe; }));
   }
-  const darkSections = () => $$('.ticker, .footer');
   requestAnimationFrame(() => onScroll(window.scrollY));
   if (lenis) lenis.on('scroll', (l) => onScroll(l.scroll));
   else window.addEventListener('scroll', () => onScroll(window.scrollY), { passive: true });
@@ -1038,23 +1034,6 @@
       G.from(c, { clipPath: 'inset(100% 0% 0% 0% round 28px)', duration: 1.3, ease: 'expo.inOut', delay: (i % 4) * 0.08, scrollTrigger: { trigger: '#catsRail', start: 'top 85%', once: true } });
       G.from($('.cat__media', c), { scale: 1.35, duration: 1.8, ease: 'expo.out', delay: (i % 4) * 0.08, scrollTrigger: { trigger: '#catsRail', start: 'top 85%', once: true } });
     });
-
-    // ticker rows move in opposite directions, faster with scroll velocity
-    if (has('.ticker')) {
-      const rows = [[$('.ticker__row--a .ticker__track'), -50, 30], [$('.ticker__row--b .ticker__track'), 50, 38]];
-      const loops = rows.map(([el, to, dur]) => (to > 0 ? G.fromTo(el, { xPercent: -50 }, { xPercent: 0, duration: dur, ease: 'none', repeat: -1 }) : G.to(el, { xPercent: to, duration: dur, ease: 'none', repeat: -1 })));
-      const skewTo = G.quickTo('.ticker__track', 'skewX', { duration: 0.5, ease: 'power3.out' });
-      ST.create({
-        trigger: '.ticker', start: 'top bottom', end: 'bottom top',
-        onUpdate: (self) => {
-          const v = self.getVelocity();
-          const speed = 1 + Math.min(4, Math.abs(v) / 400);
-          loops.forEach((l) => { G.to(l, { timeScale: speed, duration: 0.3, overwrite: true }); G.to(l, { timeScale: 1, duration: 1.2, delay: 0.3 }); });
-          skewTo(Math.max(-8, Math.min(8, v / -300)));
-        },
-        onLeave: () => skewTo(0), onLeaveBack: () => skewTo(0),
-      });
-    }
 
     // stacking cards: each card shrinks back as the next one slides over it
     const cards = $$('.stack-card');
